@@ -78,16 +78,94 @@ export async function summarizeToTutorial(
         { role: 'system', content: TUTORIAL_PROMPT },
         { role: 'user', content: `${instruction}\n\nFiles:\n${filesCtx}` },
       ],
-      temperature: 0.7, max_tokens: 4000,
+      temperature: 0.7, max_tokens: 16384,
     }),
   });
   if (!response.ok) throw new Error(`AI API error: ${response.status}`);
   const content = (await response.json()).choices[0]?.message?.content;
   if (!content) throw new Error('No content in AI response');
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('No valid JSON in AI response');
-  const parsed = JSON.parse(jsonMatch[0]);
+  return safeParseTutorialJson(content, mode);
+}
 
+function safeParseTutorialJson(raw: string, mode: 'merge' | 'separate'): TutorialResult[] {
+  // Stage 1: Try standard JSON parse (greedy regex to find JSON block)
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      const parsed = JSON.parse(jsonMatch[0]);
+      return extractTutorials(parsed, mode);
+    } catch { /* fall through to repair */ }
+  }
+
+  // Stage 2: Truncation repair — find last balanced }
+  const lastBalanced = findLastBalancedBrace(raw);
+  if (lastBalanced > 0) {
+    try {
+      const repaired = raw.substring(0, lastBalanced + 1);
+      const parsed = JSON.parse(repaired);
+      return extractTutorials(parsed, mode);
+    } catch { /* fall through */ }
+  }
+
+  // Stage 3: Repair unterminated string — try appending closing characters
+  const partial = jsonMatch ? jsonMatch[0] : (raw.match(/\{[\s\S]*/) || [''])[0];
+  const suffixes = mode === 'separate' ? ['"}]', ']}]', '"}]}'] : ['"}', '"}'];
+  for (const suffix of suffixes) {
+    try {
+      const repaired = partial + suffix;
+      const parsed = JSON.parse(repaired);
+      return extractTutorials(parsed, mode);
+    } catch { /* try next suffix */ }
+  }
+
+  // Stage 4: Regex field extraction
+  const nameMatch = raw.match(/"name"\s*:\s*"([^"]*)"/);
+  const name = nameMatch ? nameMatch[1] : 'Tutorial';
+
+  const contentIdx = raw.indexOf('"content"');
+  if (contentIdx !== -1) {
+    // Find the colon after "content"
+    const colonIdx = raw.indexOf(':', contentIdx);
+    if (colonIdx !== -1) {
+      const rest = raw.substring(colonIdx + 1).trimStart();
+      if (rest.startsWith('"')) {
+        // The content string starts at index 1, find where it ends or take everything
+        const innerStart = 1; // skip the opening "
+        let inner = rest.substring(innerStart);
+        // Remove trailing "} or " if present
+        inner = inner.replace(/"\s*\}?\s*$/, '');
+        // Basic unescaping for \", \\, \n
+        inner = inner.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\\\/g, '\\');
+        return [{ name, content: inner }];
+      }
+    }
+  }
+
+  // Stage 5: Use entire response as raw content
+  return [{ name: 'Tutorial', content: raw }];
+}
+
+function findLastBalancedBrace(text: string): number {
+  let depth = 0;
+  let lastValid = -1;
+  let inString = false;
+  let escape = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (escape) { escape = false; continue; }
+    if (ch === '\\') { escape = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === '{') { depth++; }
+    else if (ch === '}') {
+      depth--;
+      if (depth === 0) lastValid = i;
+    }
+  }
+  return lastValid;
+}
+
+function extractTutorials(parsed: any, mode: 'merge' | 'separate'): TutorialResult[] {
   if (mode === 'merge') {
     return [{ name: parsed.name || 'Tutorial', content: parsed.content || '' }];
   }
@@ -210,7 +288,7 @@ Please analyze these materials, score their correlations, and generate a compreh
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.7,
-      max_tokens: 4000,
+      max_tokens: 16384,
     }),
   });
 
