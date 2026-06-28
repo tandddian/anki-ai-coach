@@ -80,3 +80,24 @@ export async function initDatabase(filePath?: string): Promise<void> {
 
   db.run('PRAGMA foreign_keys = ON');
 }
+
+export async function saveDatabase(): Promise<void> {
+  if (!db) throw new Error('Database not initialized.');
+  const data = db.export();
+  const buffer = Buffer.from(data);
+
+  if (isNode) {
+    const fs = await import('fs');
+    fs.writeFileSync(getDbPath(), buffer);
+  } else if (typeof window !== 'undefined' && window.electronAPI) {
+    await window.electronAPI.saveDbFile(buffer);
+  }
+}
+
+export async function closeDatabase(): Promise<void> {
+  if (db) {
+    await saveDatabase();
+    db.close();
+    db = null;
+  }
+}
