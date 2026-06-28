@@ -1,0 +1,7 @@
+{
+  "name": "anki-ai-coach",
+  "version": "1.0.0",
+  "description": "AI-powered spaced repetition learning desktop app",
+  "type": "module",
+  "main": "dist-electron/main.js"
+}
