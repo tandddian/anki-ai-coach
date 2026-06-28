@@ -69,6 +69,12 @@ You will receive multiple study materials. For each material, you must:
 - Questions requiring inference, analysis, or evaluation
 - For materials with correlation >= 7, create cross-material questions
 
+## CRITICAL: Question Quality Requirements
+- Each question MUST be a COMPLETE, MEANINGFUL question — a full interrogative sentence that stands on its own
+- NEVER output raw sentence fragments or incomplete phrases as questions
+- For fill_in_blank: the questionText should be a full sentence with "___" marking the blank, e.g., "According to Newton's Second Law, force equals ___ times acceleration."
+- For essay: ask a substantive question like "Compare and contrast..." or "Explain how..." or "Analyze the relationship between..."
+
 ## Output Format
 Return ONLY valid JSON:
 {
@@ -79,7 +85,8 @@ Return ONLY valid JSON:
   "questions": [
     {
       "difficulty": "easy|medium|hard",
-      "questionText": "The question content",
+      "questionType": "multiple_choice|fill_in_blank|essay",
+      "questionText": "The COMPLETE question content — a full meaningful question",
       "options": ["A. option1", "B. option2", "C. option3", "D. option4"],
       "correctAnswer": "A",
       "explanation": "Why this is correct",
@@ -91,7 +98,9 @@ Return ONLY valid JSON:
 ## Important Notes:
 - Questions should use the same language as the source materials
 - Multiple choice options formatted as "A. text", "B. text", etc.
-- correctAnswer should be just the letter (e.g., "A", "B")
+- For multiple_choice: correctAnswer should be just the letter (e.g., "A", "B") — VARY the correct letter across questions
+- For fill_in_blank: correctAnswer is the word/phrase that fills the blank
+- For essay: options is an empty array [], correctAnswer is a model answer paragraph
 - For cross-material questions, include all relevant material IDs
 - Each question should reference at least one source material
 - The test name should be descriptive of the combined topics`;
