@@ -55,6 +55,24 @@ export async function generateTest(materials: Material[], correlations: { materi
   return validateGeneratedTest(result);
 }
 
+export async function summarizeToTutorial(
+  files: FileContent[],
+  mode: 'merge' | 'separate',
+): Promise<TutorialResult[]> {
+  if (!aiApiKey) throw new Error('AI API key not configured');
+
+  const filesCtx = files
+    .map((f, i) => `[File ${i + 1}: ${f.name}]\n${f.content.substring(0, 4000)}`)
+    .join('\n\n---\n\n');
+
+  const instruction = mode === 'merge'
+    ? 'Combine ALL files into ONE unified tutorial. Output the JSON with a single "name" and "content" field.'
+    : `Create ${files.length} separate tutorials, one per file. Output JSON with a "tutorials" array containing ${files.length} objects.`;
+
+  // AI call and response parsing added in next commit
+  return [{ name: 'placeholder', content: '' }];
+}
+
 function buildSystemPrompt(): string {
   return `You are an expert educational assessment designer specializing in spaced repetition learning.
 
