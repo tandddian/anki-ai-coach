@@ -18,3 +18,11 @@ export interface Material {
   nextReview: string;
   createdAt: string;
 }
+
+export interface Folder {
+  id: number;
+  name: string;
+  type: FolderType;
+  parentId: number | null;
+  createdAt: string;
+}
