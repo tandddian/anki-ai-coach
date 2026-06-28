@@ -66,6 +66,30 @@ export interface AIGeneratedQuestion {
   sourceMaterialIds: number[];
 }
 
+export interface AIGeneratedTest {
+  name: string;
+  questions: AIGeneratedQuestion[];
+  correlations: { material1Id: number; material2Id: number; score: number }[];
+}
+
+export interface CalendarDay {
+  date: Date;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isSelected: boolean;
+  hasDueMaterials: boolean;
+}
+
+export interface ElectronAPI {
+  openFileDialog: () => Promise<string[]>;
+  readFile: (path: string) => Promise<Buffer>;
+  saveFile: (path: string, data: string) => Promise<void>;
+  dbOperation: (operation: string, params: any) => Promise<any>;
+  getAppPath: () => Promise<string>;
+  readDbFile: () => Promise<ArrayBuffer | null>;
+  saveDbFile: (data: ArrayBuffer) => Promise<void>;
+  loadWasm: () => Promise<ArrayBuffer | null>;
+}
 export interface Folder {
   id: number;
   name: string;
