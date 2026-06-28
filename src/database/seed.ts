@@ -231,3 +231,30 @@ async function seed(): Promise<void> {
     'C',
     'World War II began in 1939 when Germany invaded Poland. Britain and France declared war on Germany shortly after.'
   );
+
+  createQuestion(
+    sampleTest.id,
+    'medium',
+    'What does the Fundamental Theorem of Calculus establish?',
+    ['A. That all functions are differentiable', 'B. That differentiation and integration are inverse operations', 'C. That integrals always converge', 'D. That derivatives are always continuous'],
+    'B',
+    'The Fundamental Theorem of Calculus shows that differentiation and integration are inverse operations.'
+  );
+
+  createQuestion(
+    sampleTest.id,
+    'medium',
+    'Which of the following was NOT a major cause of World War II?',
+    ['A. Treaty of Versailles', 'B. Rise of fascism', 'C. The Industrial Revolution', 'D. Failure of the League of Nations'],
+    'C',
+    'The Industrial Revolution occurred much earlier (late 18th-early 19th centuries) and was not a direct cause of WWII.'
+  );
+
+  createQuestion(
+    sampleTest.id,
+    'medium',
+    'What is the relationship between eigenvalues and eigenvectors in linear algebra?',
+    ['A. Eigenvalues are always larger than eigenvectors', 'B. They are unrelated concepts', 'C. For a matrix A, an eigenvector v satisfies Av = λv where λ is the eigenvalue', 'D. Eigenvectors measure the size of eigenvalues'],
+    'C',
+    'An eigenvector v of a matrix A satisfies the equation Av = λv, where λ is the corresponding eigenvalue.'
+  );
