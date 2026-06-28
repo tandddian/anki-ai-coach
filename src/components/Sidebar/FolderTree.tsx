@@ -225,13 +225,13 @@ export function FolderTree({ folderType }: FolderTreeProps) {
               viewBox="0 0 20 20"
             >
               {isOpen ? (
-                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-              ) : (
                 <path
                   fillRule="evenodd"
                   d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1H8a3 3 0 00-3 3v1.468A2 2 0 013 14V6zm11.873 5.058l-3.916 3.916a1 1 0 01-.707.293H5.778a2 2 0 01-2-2V9.31a2 2 0 012-2h1.414a1 1 0 01.707.293l2.757 2.757 1.218-2.436a1 1 0 01.894-.553H16a1 1 0 011 1v4.27a1 1 0 01-.293.707l-1.834 1.834z"
                   clipRule="evenodd"
                 />
+              ) : (
+                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
               )}
             </svg>
 
