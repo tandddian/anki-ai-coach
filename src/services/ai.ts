@@ -212,3 +212,26 @@ function generateTestRuleBased(
       });
     }
   }
+
+  // Medium questions (which statement is correct)
+  for (let i = 0; i < Math.min(3, allSentences.length); i++) {
+    const sentence = allSentences[Math.floor(Math.random() * allSentences.length)];
+    const material = materials.find(m => m.id === sentence.materialId);
+    const correctAnswer = `${sentence.text.substring(0, 80)}...`;
+    const options = [correctAnswer];
+    const otherSentences = allSentences.filter(s => s.materialId !== sentence.materialId);
+    const shuffled = otherSentences.sort(() => Math.random() - 0.5);
+    for (const other of shuffled) {
+      if (options.length >= 4) break;
+      const distractor = `${other.text.substring(0, 80)}...`;
+      if (distractor !== correctAnswer) options.push(distractor);
+    }
+    questions.push({
+      difficulty: 'medium',
+      questionText: `According to "${material?.name || 'the material'}", which statement is correct?`,
+      options: options.map((opt, idx) => `${String.fromCharCode(65 + idx)}. ${opt}`),
+      correctAnswer: 'A',
+      explanation: `This is a key point from "${material?.name || 'the material'}".`,
+      sourceMaterialIds: [sentence.materialId],
+    });
+  }
