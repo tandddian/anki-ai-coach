@@ -95,3 +95,57 @@ export const useStore = create<AppState>((set, get) => ({
       set({ currentQuestions: [], currentMaterials: [] });
     }
   },
+
+  loadFolders: async () => {
+    set({ isLoadingFolders: true });
+    try {
+      const folders = getAllFolders();
+      set({ folders, isLoadingFolders: false });
+    } catch (error) {
+      console.error('Error loading folders:', error);
+      set({ isLoadingFolders: false });
+    }
+  },
+
+  loadMaterials: async (folderId?: number) => {
+    set({ isLoadingMaterials: true });
+    try {
+      if (folderId) {
+        const materials = getMaterialsByFolderId(folderId);
+        set({ materials, isLoadingMaterials: false });
+      } else {
+        const materials = getAllMaterials();
+        set({ materials, isLoadingMaterials: false });
+      }
+    } catch (error) {
+      console.error('Error loading materials:', error);
+      set({ isLoadingMaterials: false });
+    }
+  },
+
+  loadDueMaterials: async (date: Date) => {
+    try {
+      const dateStr = getDateString(date);
+      const materials = getDueMaterials(dateStr);
+      set({ materials });
+    } catch (error) {
+      console.error('Error loading due materials:', error);
+    }
+  },
+
+  loadTests: async (date: Date) => {
+    set({ isLoadingTests: true });
+    try {
+      const dateStr = getDateString(date);
+      const tests = getTestsByDate(dateStr);
+      set({ tests, isLoadingTests: false });
+      if (tests.length > 0) {
+        get().selectTest(tests[0]);
+      } else {
+        set({ selectedTest: null, currentQuestions: [], currentMaterials: [] });
+      }
+    } catch (error) {
+      console.error('Error loading tests:', error);
+      set({ isLoadingTests: false });
+    }
+  },
