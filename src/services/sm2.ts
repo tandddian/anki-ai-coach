@@ -39,3 +39,22 @@ export function calculateSM2(input: SM2Input, reviewDate: Date = new Date()): SM
     newRepetitions = 0;
     newInterval = 1;
   }
+
+  // Update ease factor
+  newEaseFactor = easeFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
+  if (newEaseFactor < 1.3) {
+    newEaseFactor = 1.3;
+  }
+
+  // Calculate next review date
+  const nextReview = new Date(reviewDate);
+  nextReview.setDate(nextReview.getDate() + newInterval);
+  nextReview.setHours(0, 0, 0, 0);
+
+  return {
+    repetitions: newRepetitions,
+    easeFactor: Math.round(newEaseFactor * 100) / 100,
+    interval: newInterval,
+    nextReview,
+  };
+}
