@@ -33,3 +33,17 @@ export default function App() {
       </div>
     );
   }
+
+  if (!initComplete) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mb-4"></div>
+          <p className="text-gray-600">Initializing database...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <DoubleWingLayout />;
+}
