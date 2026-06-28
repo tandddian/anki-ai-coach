@@ -13,15 +13,18 @@ export function getAIKey(): string | null {
 }
 
 export async function generateTest(materials: Material[], correlations: { material1Id: number; material2Id: number; score: number }[]): Promise<AIGeneratedTest> {
+  let result: AIGeneratedTest;
   if (aiApiKey) {
     try {
-      return await generateTestWithAI(materials, correlations);
+      result = await generateTestWithAI(materials, correlations);
     } catch (error) {
       console.error('AI generation failed, falling back to rule-based:', error);
-      return generateTestRuleBased(materials, correlations);
+      result = generateTestRuleBased(materials, correlations);
     }
+  } else {
+    result = generateTestRuleBased(materials, correlations);
   }
-  return generateTestRuleBased(materials, correlations);
+  return validateGeneratedTest(result);
 }
 
 function buildSystemPrompt(): string {
