@@ -63,11 +63,12 @@ export function AnswerForm({
           {parts[0]}
           <input
             type="text"
-            value={userAnswer}
+            value={userAnswer.replace(/^[A-D]$/i.test(userAnswer) ? userAnswer : userAnswer, '')}
             onChange={(e) => onAnswerChange(e.target.value)}
             disabled={disabled}
             placeholder="______"
-            className={`inline-block min-w-[120px] px-2 py-0.5 text-sm border-b-2
+            className={`
+              inline-block min-w-[120px] px-2 py-0.5 text-sm border-b-2
               focus:outline-none focus:border-blue-500
               disabled:bg-gray-50 disabled:text-gray-500
               ${showResult && correctAnswer
@@ -77,6 +78,7 @@ export function AnswerForm({
                 : 'border-gray-300'
               }
             `}
+            style={{ width: 'auto' }}
           />
           {parts[1]}
         </div>
@@ -94,17 +96,28 @@ export function AnswerForm({
             return (
               <label
                 key={idx}
-                className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer
-                  ${disabled ? 'cursor-not-allowed' : 'hover:border-blue-300'}
+                className={`
+                  flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all
+                  ${disabled ? 'cursor-not-allowed' : 'cursor-pointer hover:border-blue-300'}
                   ${isSelected && !showResult ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
                   ${showCorrect ? 'border-green-500 bg-green-50' : ''}
                   ${showWrong ? 'border-red-500 bg-red-50' : ''}
                 `}
-                onClick={() => { if (!disabled) onAnswerChange(label); }}
+                onClick={() => {
+                  if (!disabled) {
+                    onAnswerChange(label);
+                  }
+                }}
               >
-                <input type="radio" name={`question-${question.id}`} value={label}
-                  checked={isSelected} onChange={() => onAnswerChange(label)}
-                  disabled={disabled} className="mt-0.5 text-blue-600 focus:ring-blue-500" />
+                <input
+                  type="radio"
+                  name={`question-${question.id}`}
+                  value={label}
+                  checked={isSelected}
+                  onChange={() => onAnswerChange(label)}
+                  disabled={disabled}
+                  className="mt-0.5 text-blue-600 focus:ring-blue-500"
+                />
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-gray-500 w-5">{label}.</span>
@@ -125,7 +138,7 @@ export function AnswerForm({
     );
   }
 
-  // Multiple choice
+  // Multiple choice: radio buttons as before
   if (hasOptions) {
     return (
       <div className="space-y-2">
