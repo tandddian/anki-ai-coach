@@ -102,24 +102,28 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   selectTestFromList: (test: AITest) => {
-    const testDate = new Date(test.testDate);
-    const dateStr = getDateString(testDate);
-    const questions = getQuestionsByTestId(test.id);
-    const testMaterials = getTestMaterialsByTestId(test.id);
-    const materialIds = testMaterials.map(tm => tm.materialId);
-    const materials = getMaterialsByIds(materialIds);
-    const tests = getTestsByDate(dateStr);
-    const dueMaterials = getDueMaterials(dateStr);
-    set({
-      selectedDate: testDate,
-      selectedTest: test,
-      currentQuestions: questions,
-      currentMaterials: materials,
-      tests,
-      materials: dueMaterials,
-      testResults: null,
-      showTestResults: false,
-    });
+    try {
+      const testDate = new Date(test.testDate);
+      const dateStr = getDateString(testDate);
+      const questions = getQuestionsByTestId(test.id);
+      const testMaterials = getTestMaterialsByTestId(test.id);
+      const materialIds = testMaterials.map(tm => tm.materialId);
+      const materials = getMaterialsByIds(materialIds);
+      const tests = getTestsByDate(dateStr);
+      const dueMaterials = getDueMaterials(dateStr);
+      set({
+        selectedDate: testDate,
+        selectedTest: test,
+        currentQuestions: questions,
+        currentMaterials: materials,
+        tests,
+        materials: dueMaterials,
+        testResults: null,
+        showTestResults: false,
+      });
+    } catch (error) {
+      console.error('Error selecting test from list:', error);
+    }
   },
 
   loadFolders: async () => {
