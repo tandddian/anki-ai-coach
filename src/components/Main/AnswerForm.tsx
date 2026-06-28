@@ -88,12 +88,17 @@ export function AnswerForm({
             const label = match ? match[1] : String.fromCharCode(65 + idx);
             const text = match ? match[2] : option;
             const isSelected = userAnswer.toUpperCase() === label.toUpperCase();
+            const isCorrectAnswer = correctAnswer?.toUpperCase() === label.toUpperCase();
+            const showCorrect = showResult && isCorrectAnswer;
+            const showWrong = showResult && isSelected && !isCorrectAnswer;
             return (
               <label
                 key={idx}
                 className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer
                   ${disabled ? 'cursor-not-allowed' : 'hover:border-blue-300'}
-                  ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
+                  ${isSelected && !showResult ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
+                  ${showCorrect ? 'border-green-500 bg-green-50' : ''}
+                  ${showWrong ? 'border-red-500 bg-red-50' : ''}
                 `}
                 onClick={() => { if (!disabled) onAnswerChange(label); }}
               >
@@ -105,6 +110,12 @@ export function AnswerForm({
                     <span className="text-xs font-semibold text-gray-500 w-5">{label}.</span>
                     <span className="text-sm text-gray-700">{text}</span>
                   </div>
+                  {showCorrect && (
+                    <span className="text-xs text-green-600 mt-1 inline-block">Correct answer</span>
+                  )}
+                  {showWrong && (
+                    <span className="text-xs text-red-600 mt-1 inline-block">Your answer</span>
+                  )}
                 </div>
               </label>
             );
@@ -171,7 +182,7 @@ export function AnswerForm({
     );
   }
 
-  // Open-ended / text input
+  // Fallback: text input for any other case
   return (
     <div>
       <textarea
