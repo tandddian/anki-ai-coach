@@ -96,7 +96,7 @@ export function MainContent() {
 
         {/* Test Viewer */}
         {!isGenerating && !showTestResults && selectedTest && !generationError && (
-          <TestViewer />
+          <TestViewer key={selectedTest.id} />
         )}
 
         {/* Empty state */}
