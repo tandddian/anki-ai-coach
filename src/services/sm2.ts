@@ -58,3 +58,17 @@ export function calculateSM2(input: SM2Input, reviewDate: Date = new Date()): SM
     nextReview,
   };
 }
+
+export function scoreToQuality(scorePercentage: number): number {
+  if (scorePercentage >= 95) return 5;
+  if (scorePercentage >= 80) return 4;
+  if (scorePercentage >= 60) return 3;
+  if (scorePercentage >= 40) return 2;
+  if (scorePercentage >= 20) return 1;
+  return 0;
+}
+
+export function materialPerformanceToQuality(correctCount: number, totalCount: number): number {
+  if (totalCount === 0) return 3;
+  return scoreToQuality((correctCount / totalCount) * 100);
+}
