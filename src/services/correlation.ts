@@ -77,3 +77,29 @@ function extractKeywords(text: string): string[] {
     .filter(([_, count]) => count >= 2)
     .map(([word]) => word);
 }
+
+function isStopWord(word: string): boolean {
+  const stopWords = new Set([
+    'about', 'above', 'after', 'again', 'against', 'being', 'below', 'between',
+    'could', 'does', 'doing', 'during', 'each', 'few', 'from', 'further',
+    'have', 'having', 'here', 'into', 'itself', 'just', 'more', 'most',
+    'other', 'over', 'same', 'should', 'some', 'such', 'than', 'that',
+    'their', 'them', 'then', 'there', 'these', 'they', 'this', 'those',
+    'through', 'under', 'until', 'very', 'what', 'when', 'where', 'which',
+    'while', 'who', 'whom', 'will', 'with', 'would', 'your',
+  ]);
+  return stopWords.has(word.toLowerCase());
+}
+
+function calculateTextSimilarity(s1: string, s2: string): number {
+  const words1 = new Set(s1.toLowerCase().split(/[\s,.]+/).filter(w => w.length > 2));
+  const words2 = new Set(s2.toLowerCase().split(/[\s,.]+/).filter(w => w.length > 2));
+  if (words1.size === 0 || words2.size === 0) return 0;
+
+  let common = 0;
+  for (const word of words1) {
+    if (words2.has(word)) common++;
+  }
+
+  return common / Math.sqrt(words1.size * words2.size);
+}
