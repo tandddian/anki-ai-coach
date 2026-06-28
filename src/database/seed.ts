@@ -208,3 +208,26 @@ async function seed(): Promise<void> {
 
   createCorrelation(calculusMaterial.id, linearAlgebraMaterial.id, 8);
   createCorrelation(calculusMaterial.id, physicsMaterial.id, 7);
+
+  console.log('Creating sample test...');
+
+  const today = getDateString(new Date());
+  const sampleTest = createTest(`${today.replace(/-/g, '/')} - Math & History Daily Review`, today);
+
+  createQuestion(
+    sampleTest.id,
+    'easy',
+    'What is the derivative of x^n according to the Power Rule?',
+    ['A. nx^(n+1)', 'B. nx^(n-1)', 'C. (n-1)x^n', 'D. x^(n)'],
+    'B',
+    'The Power Rule states d/dx(x^n) = nx^(n-1). This is one of the most fundamental rules in differential calculus.'
+  );
+
+  createQuestion(
+    sampleTest.id,
+    'easy',
+    'In which year did World War II begin?',
+    ['A. 1937', 'B. 1938', 'C. 1939', 'D. 1941'],
+    'C',
+    'World War II began in 1939 when Germany invaded Poland. Britain and France declared war on Germany shortly after.'
+  );
