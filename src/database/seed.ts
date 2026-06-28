@@ -68,3 +68,29 @@ async function seed(): Promise<void> {
     - Product Rule: d/dx[f(x)g(x)] = f'(x)g(x) + f(x)g'(x)
     - Chain Rule: d/dx[f(g(x))] = f'(g(x)) * g'(x)`
   );
+
+  const linearAlgebraMaterial = createMaterial(
+    'Linear Algebra Fundamentals',
+    '/sample/linear_algebra.md',
+    'md',
+    mathFolder.id,
+    `Linear algebra is the branch of mathematics concerning linear equations and linear functions.
+    It is central to almost all areas of mathematics and is fundamental in modern presentations
+    of geometry and functional analysis.
+
+    Key concepts:
+    1. Vectors: Elements of a vector space, representing quantities with magnitude and direction.
+    2. Matrices: Rectangular arrays of numbers arranged in rows and columns.
+    3. Linear Transformations: Functions between vector spaces that preserve vector addition
+       and scalar multiplication.
+    4. Eigenvalues and Eigenvectors: For a matrix A, an eigenvector v satisfies Av = λv,
+       where λ is the eigenvalue.
+    5. Determinants: A scalar value that can be computed from the elements of a square matrix,
+       representing the scaling factor of the linear transformation.
+
+    Connection to Calculus:
+    - Matrix calculus extends calculus to matrix-valued functions
+    - The Jacobian matrix contains all first-order partial derivatives
+    - The Hessian matrix contains second-order partial derivatives
+    - Linear algebra provides the framework for solving systems of differential equations`
+  );
