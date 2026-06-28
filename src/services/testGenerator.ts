@@ -18,3 +18,22 @@ export async function generateTestForDate(date: string): Promise<AITest | null> 
     material2Id: c.material2Id,
     score: c.correlationScore,
   })));
+
+  const test = createTest(generatedTest.name, date);
+
+  generatedTest.questions.map(q =>
+    createQuestion(test.id, q.difficulty, q.questionText, q.options, q.correctAnswer, q.explanation)
+  );
+
+  const materialIdSet = new Set<number>();
+  for (const question of generatedTest.questions) {
+    for (const materialId of question.sourceMaterialIds) {
+      materialIdSet.add(materialId);
+    }
+  }
+  for (const materialId of materialIdSet) {
+    createTestMaterial(test.id, materialId);
+  }
+
+  return test;
+}
