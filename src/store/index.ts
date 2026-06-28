@@ -149,3 +149,41 @@ export const useStore = create<AppState>((set, get) => ({
       set({ isLoadingTests: false });
     }
   },
+
+  generateTest: async (date: Date) => {
+    set({ isGenerating: true, generationError: null });
+    try {
+      const dateStr = getDateString(date);
+      const test = await generateTestForDate(dateStr);
+      if (test) {
+        set({ isGenerating: false });
+        await get().loadTests(date);
+        get().selectTest(test);
+      } else {
+        set({
+          isGenerating: false,
+          generationError: 'No due materials available for this date. Import materials to get started.',
+        });
+      }
+    } catch (error: any) {
+      console.error('Error generating test:', error);
+      set({
+        isGenerating: false,
+        generationError: error.message || 'Failed to generate test. Please try again.',
+      });
+    }
+  },
+
+  submitAnswers: async (answers: Record<number, string>) => {
+    const { selectedTest } = get();
+    if (!selectedTest) return null;
+    try {
+      const attempt = scoreTest(selectedTest.id, answers);
+      const breakdown = getTestResultBreakdown(selectedTest.id, answers);
+      set({ testResults: breakdown, showTestResults: true });
+      return attempt;
+    } catch (error) {
+      console.error('Error submitting answers:', error);
+      return null;
+    }
+  },
