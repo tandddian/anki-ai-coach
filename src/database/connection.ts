@@ -101,3 +101,15 @@ export async function closeDatabase(): Promise<void> {
     db = null;
   }
 }
+
+// Helper: run INSERT/UPDATE/DELETE and return lastInsertRowid
+export function runSql(sql: string, params: SqlParams = []): { lastInsertRowid: number; changes: number } {
+  const database = getDb();
+  database.run(sql, params);
+  const changes = database.getRowsModified();
+  const result = database.exec('SELECT last_insert_rowid() as id');
+  const lastInsertRowid = result.length > 0 && result[0].values.length > 0
+    ? Number(result[0].values[0][0])
+    : 0;
+  return { lastInsertRowid, changes };
+}
