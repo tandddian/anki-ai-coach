@@ -113,3 +113,26 @@ export function getMaterialsByIds(ids: number[]): Material[] {
   const placeholders = ids.map(() => '?').join(',');
   return queryAll<Material>(`SELECT * FROM materials WHERE id IN (${placeholders})`, ids);
 }
+
+// ============ TEST QUERIES ============
+
+export function createTest(name: string, testDate: string): AITest {
+  const result = runSql('INSERT INTO ai_tests (name, test_date) VALUES (?, ?)', [name, testDate]);
+  return getTestById(result.lastInsertRowid)!;
+}
+
+export function getAllTests(): AITest[] {
+  return queryAll<AITest>('SELECT * FROM ai_tests ORDER BY created_at DESC');
+}
+
+export function getTestById(id: number): AITest | undefined {
+  return queryOne<AITest>('SELECT * FROM ai_tests WHERE id = ?', [id]);
+}
+
+export function getTestsByDate(date: string): AITest[] {
+  return queryAll<AITest>('SELECT * FROM ai_tests WHERE test_date = ? ORDER BY created_at DESC', [date]);
+}
+
+export function deleteTest(id: number): void {
+  runSql('DELETE FROM ai_tests WHERE id = ?', [id]);
+}
