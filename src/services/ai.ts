@@ -144,7 +144,7 @@ Please analyze these materials, score their correlations, and generate a compreh
   const parsed = JSON.parse(jsonMatch[0]);
 
   return {
-    name: parsed.name || `${getDateString(new Date())} - AI Generated Test`,
+    name: fixTestName(parsed.name),
     questions: (parsed.questions || []).map((q: any) => ({
       difficulty: q.difficulty || 'easy',
       questionText: q.questionText || '',
@@ -155,6 +155,14 @@ Please analyze these materials, score their correlations, and generate a compreh
     })),
     correlations: parsed.correlations || correlations,
   };
+}
+
+function fixTestName(aiName: string): string {
+  const today = getDateString(new Date());
+  // Extract topic after "YYYY/MM/DD - " prefix; fallback to full name
+  const match = aiName?.match(/^\d{4}\/\d{2}\/\d{2}\s*-\s*(.+)/);
+  const topic = match ? match[1] : (aiName || 'AI Generated Test');
+  return `${today} - ${topic}`;
 }
 
 function generateTestRuleBased(
