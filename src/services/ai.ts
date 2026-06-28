@@ -235,3 +235,35 @@ function generateTestRuleBased(
       sourceMaterialIds: [sentence.materialId],
     });
   }
+
+  // Hard questions (cross-material synthesis for high-correlation pairs)
+  const highCorrelationPairs = correlations.filter(c => c.score >= 7);
+  const pairsToUse = highCorrelationPairs.length > 0
+    ? highCorrelationPairs.slice(0, 2)
+    : materials.length >= 2
+      ? materials.slice(0, 2).map((_m, i) => ({
+          material1Id: materials[0].id,
+          material2Id: materials[Math.min(i + 1, materials.length - 1)].id,
+          score: 5,
+        }))
+      : [];
+
+  for (const pair of pairsToUse) {
+    const m1 = materials.find(m => m.id === pair.material1Id);
+    const m2 = materials.find(m => m.id === pair.material2Id);
+    if (m1 && m2) {
+      questions.push({
+        difficulty: 'hard',
+        questionText: `How does the concept from "${m1.name}" relate to the content in "${m2.name}"? Provide a synthesis of the key ideas from both materials.`,
+        options: [
+          `A. They are completely unrelated topics with no connection`,
+          `B. They share overlapping themes that complement each other`,
+          `C. "${m1.name}" fully explains everything in "${m2.name}"`,
+          `D. "${m2.name}" contradicts the main points of "${m1.name}"`,
+        ],
+        correctAnswer: 'B',
+        explanation: `Both materials share thematic connections. "${m1.name}" covers foundational concepts that relate to the ideas presented in "${m2.name}". Cross-referencing both provides a more complete understanding.`,
+        sourceMaterialIds: [pair.material1Id, pair.material2Id],
+      });
+    }
+  }
