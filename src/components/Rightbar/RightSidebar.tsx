@@ -9,6 +9,7 @@ export function RightSidebar() {
   const selectedDate = useStore(state => state.selectedDate);
   const currentMaterials = useStore(state => state.currentMaterials);
   const currentQuestions = useStore(state => state.currentQuestions);
+  const materials = useStore(state => state.materials);
 
   const [showAddFolderModal, setShowAddFolderModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -120,7 +121,7 @@ export function RightSidebar() {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Total Materials</span>
                   <span className="text-gray-900 font-medium">
-                    {useStore.getState().materials.length}
+                    {materials.length}
                   </span>
                 </div>
                 <div className="flex justify-between">
