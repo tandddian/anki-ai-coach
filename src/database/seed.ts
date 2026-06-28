@@ -94,3 +94,36 @@ async function seed(): Promise<void> {
     - The Hessian matrix contains second-order partial derivatives
     - Linear algebra provides the framework for solving systems of differential equations`
   );
+
+  const wwiiMaterial = createMaterial(
+    'World War II Overview',
+    '/sample/wwii_overview.docx',
+    'docx',
+    historyFolder.id,
+    `World War II (1939-1945) was the deadliest conflict in human history, involving more than
+    30 countries and resulting in 70-85 million fatalities. The war was fought between the Axis
+    powers (primarily Germany, Italy, and Japan) and the Allied powers.
+
+    Major Events Timeline:
+    - 1939: Germany invades Poland, beginning the war in Europe
+    - 1940: Battle of Britain, Germany's first major defeat
+    - 1941: Operation Barbarossa (invasion of USSR); Pearl Harbor attack (US enters war)
+    - 1942: Battle of Stalingrad (turning point in Eastern Front); Battle of Midway
+    - 1943: Allied invasion of Italy; Tehran Conference
+    - 1944: D-Day (Normandy invasion); Battle of the Bulge
+    - 1945: Fall of Berlin; Atomic bombings of Hiroshima and Nagasaki; Japanese surrender
+
+    Key Causes:
+    - Treaty of Versailles and its harsh terms on Germany
+    - Rise of fascism and militarism
+    - Great Depression economic conditions
+    - Failure of the League of Nations
+    - Appeasement policy toward aggressor nations
+
+    Consequences:
+    - Creation of the United Nations
+    - Beginning of the Cold War
+    - Decolonization movements in Asia and Africa
+    - Establishment of Israel
+    - Marshall Plan for European reconstruction`
+  );
