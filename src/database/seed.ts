@@ -258,3 +258,21 @@ async function seed(): Promise<void> {
     'C',
     'An eigenvector v of a matrix A satisfies the equation Av = λv, where λ is the corresponding eigenvalue.'
   );
+
+  createQuestion(
+    sampleTest.id,
+    'hard',
+    'How does calculus relate to linear algebra in the context of multi-variable functions? Consider both the Jacobian and Hessian matrices.',
+    ['A. Calculus is completely independent of linear algebra', 'B. Linear algebra replaces calculus for multi-variable functions', 'C. The Jacobian and Hessian matrices use linear algebra to organize partial derivatives, connecting both fields', 'D. Linear algebra only provides notation without adding value'],
+    'C',
+    'Calculus and linear algebra intersect in multi-variable calculus. The Jacobian matrix organizes all first-order partial derivatives as a matrix, while the Hessian matrix organizes second-order partial derivatives. These matrices use linear algebra techniques to analyze multi-variable functions.'
+  );
+
+  createQuestion(
+    sampleTest.id,
+    'hard',
+    'Analyze the relationship between Newton\'s Second Law (F = ma) in physics and the mathematical concepts of derivatives in calculus. How does this connection enable the prediction of motion?',
+    ['A. There is no mathematical connection between F=ma and calculus', 'B. F=ma only uses basic algebra, not calculus', 'C. Since acceleration a = dv/dt = d²x/dt², Newton\'s Second Law becomes a differential equation F = m(d²x/dt²) that can be solved to predict position over time', 'D. Calculus is only useful for constant forces'],
+    'C',
+    'Newton\'s Second Law F = ma directly connects to calculus because acceleration is the second derivative of position. Writing F = m(d²x/dt²) transforms it into a differential equation. For any given force function F(t) or F(x), this equation can be solved using integration techniques to predict the exact position x(t) of an object at any time.'
+  );
