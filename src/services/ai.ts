@@ -311,6 +311,7 @@ function generateTestRuleBased(
         `C. "${m1.name}" fully explains everything in "${m2.name}"`,
         `D. "${m2.name}" contradicts the main points of "${m1.name}"`,
       ];
+
       // Shuffle so correct answer isn't always B
       const correctText = `They share overlapping themes that complement each other`;
       const shuffledHard = [...hardOptions].sort(() => Math.random() - 0.5);
@@ -368,6 +369,8 @@ function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
   let questions = test.questions.filter((q) => {
     const text = q.questionText.trim();
     if (text.length < MIN_QUESTION_LENGTH) return false;
+    // Filter out raw sentence fragments that don't look like questions
+    // A fragment starts with lowercase and ends without question mark or period
     if (
       text[0] === text[0].toLowerCase() &&
       !text.endsWith('?') &&
@@ -380,6 +383,7 @@ function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
   });
 
   if (questions.length === 0) {
+    // If all questions were filtered out, return as-is rather than empty
     return test;
   }
 
@@ -390,9 +394,11 @@ function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
 
   // Convert some questions if types are missing
   if (!hasFillInBlank && questions.length >= 2) {
+    // Convert the first non-essay question to fill_in_blank
     const toConvert = questions.find(q => q.questionType !== 'essay');
     if (toConvert) {
       toConvert.questionType = 'fill_in_blank';
+      // Add blank marker if not present
       if (!toConvert.questionText.includes('___')) {
         const words = toConvert.questionText.split(' ');
         if (words.length > 3) {
@@ -400,6 +406,18 @@ function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
           const replaced = words[replaceIdx];
           words[replaceIdx] = '___';
           toConvert.questionText = words.join(' ');
+          // Update correctAnswer to include the replaced word in options
+          if (toConvert.options.length >= 4) {
+            const letter = toConvert.correctAnswer.toUpperCase().charCodeAt(0) - 65;
+            if (letter >= 0 && letter < toConvert.options.length) {
+              const optionMatch = toConvert.options[letter].match(/^[A-D][.)]\s*(.+)$/i);
+              if (optionMatch) {
+                toConvert.correctAnswer = optionMatch[1];
+              } else {
+                toConvert.correctAnswer = replaced;
+              }
+            }
+          }
         }
       }
     }
