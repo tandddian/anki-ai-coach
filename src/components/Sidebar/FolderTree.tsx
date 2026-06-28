@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Tree, type NodeApi, type NodeRendererProps, type TreeApi } from 'react-arborist';
 import { useStore } from '../../store';
 import { Folder, FolderType } from '../../types';
+import { parseFile } from '../../utils/fileParser';
+import { createMaterial } from '../../database/queries';
 
 interface TreeNode {
   id: string;
@@ -41,6 +43,7 @@ export function FolderTree({ folderType }: FolderTreeProps) {
   const addFolder = useStore(state => state.addFolder);
   const removeFolder = useStore(state => state.removeFolder);
   const loadMaterials = useStore(state => state.loadMaterials);
+  const refreshMaterials = useStore(state => state.refreshMaterials);
 
   const [contextMenu, setContextMenu] = useState<{
     folderId: number;
@@ -53,6 +56,11 @@ export function FolderTree({ folderType }: FolderTreeProps) {
 
   const treeRef = useRef<TreeApi<TreeNode> | null>(null);
   const pendingOpenRef = useRef<Set<string>>(new Set());
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const importingFolderRef = useRef<number | null>(null);
+
+  const [isImporting, setIsImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
 
   const treeData = useMemo(
     () => buildTree(folders, folderType),
@@ -176,6 +184,69 @@ export function FolderTree({ folderType }: FolderTreeProps) {
     },
     [addFolder, folderType],
   );
+
+  const handleImportClick = useCallback((folderId: number) => {
+    importingFolderRef.current = folderId;
+    setContextMenu(null);
+    setImportError(null);
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+
+      const targetFolderId = importingFolderRef.current;
+      setIsImporting(true);
+      setImportError(null);
+
+      try {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const buffer = await file.arrayBuffer();
+          const bufferObj = Buffer.from(buffer);
+          const result = await parseFile(file.name, bufferObj, file.type);
+          const materialType = getMaterialType(file.name);
+
+          createMaterial(
+            file.name,
+            file.name,
+            materialType,
+            targetFolderId,
+            result.text,
+          );
+        }
+
+        await refreshMaterials();
+        if (targetFolderId) {
+          loadMaterials(targetFolderId);
+        }
+      } catch (err: any) {
+        setImportError(err.message || 'Failed to import file');
+      } finally {
+        setIsImporting(false);
+        importingFolderRef.current = null;
+        // Reset file input so the same file can be re-imported
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    },
+    [loadMaterials, refreshMaterials],
+  );
+
+  function getMaterialType(fileName: string): 'pdf' | 'docx' | 'pptx' | 'md' | 'anki' {
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    switch (ext) {
+      case 'pdf': return 'pdf';
+      case 'docx': return 'docx';
+      case 'pptx': return 'pptx';
+      case 'md':
+      case 'markdown': return 'md';
+      default: return 'anki';
+    }
+  }
 
   // Custom node renderer
   const NodeRenderer = useCallback(
@@ -301,6 +372,26 @@ export function FolderTree({ folderType }: FolderTreeProps) {
         >
           <button
             className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+            onClick={() => handleImportClick(contextMenu.folderId)}
+          >
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+            Import File
+          </button>
+          <hr className="my-1 border-gray-100" />
+          <button
+            className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100 flex items-center gap-2"
             onClick={() => handleAddSubfolder(contextMenu.folderId)}
           >
             <svg
@@ -356,6 +447,35 @@ export function FolderTree({ folderType }: FolderTreeProps) {
               />
             </svg>
             Delete
+          </button>
+        </div>
+      )}
+
+      {/* Hidden file input for import */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept=".pdf,.docx,.pptx,.md,.markdown,.txt,.csv,.tsv,.apkg"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
+      {/* Import status */}
+      {isImporting && (
+        <div className="fixed top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-xs flex items-center gap-2">
+          <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent" />
+          Importing...
+        </div>
+      )}
+      {importError && (
+        <div className="fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-xs">
+          {importError}
+          <button
+            className="ml-2 underline"
+            onClick={() => setImportError(null)}
+          >
+            Dismiss
           </button>
         </div>
       )}
