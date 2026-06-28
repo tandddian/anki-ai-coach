@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar } from './Calendar';
 import { FolderTree } from './FolderTree';
+import { TestList } from './TestList';
 import { useStore } from '../../store';
 
 export function LeftSidebar() {
@@ -98,14 +99,8 @@ export function LeftSidebar() {
           </svg>
         </button>
         {questionTreeOpen && (
-          <div className="px-2 pb-2">
-            <button
-              onClick={() => addFolder('New Folder', 'question')}
-              className="w-full text-xs text-green-600 hover:text-green-800 hover:bg-green-50 rounded px-2 py-1 text-left transition-colors mb-1"
-            >
-              + Add Question Folder
-            </button>
-            <FolderTree folderType="question" />
+          <div className="pb-2">
+            <TestList />
           </div>
         )}
       </div>
