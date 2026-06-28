@@ -3,7 +3,7 @@ import { useStore } from '../../store';
 import { SourceMaterialList } from './SourceMaterialList';
 import { AddFolderModal } from '../Modals/AddFolderModal';
 import { ImportMaterialModal } from '../Modals/ImportMaterialModal';
-import { setAIKey } from '../../services/ai';
+import { setAIKey, getAIKey } from '../../services/ai';
 
 export function RightSidebar() {
   const selectedTest = useStore(state => state.selectedTest);
@@ -15,6 +15,8 @@ export function RightSidebar() {
   const [showAddFolderModal, setShowAddFolderModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'materials' | 'info'>('materials');
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [apiKeyValue, setApiKeyValue] = useState(getAIKey() || '');
 
   return (
     <div className="h-full flex flex-col">
@@ -145,18 +147,48 @@ export function RightSidebar() {
               <p className="text-xs text-blue-800">
                 To enable AI-powered test generation, set your DeepSeek API key in the configuration.
               </p>
-              <button
-                className="mt-2 w-full text-xs bg-blue-600 text-white py-1 rounded hover:bg-blue-700 transition-colors"
-                onClick={() => {
-                  const key = prompt('Enter your DeepSeek API key:');
-                  if (key) {
-                    setAIKey(key.trim());
-                    alert('API key set successfully!');
-                  }
-                }}
-              >
-                Configure API Key
-              </button>
+              {showApiKeyInput ? (
+                <div className="mt-2 space-y-2">
+                  <input
+                    type="password"
+                    value={apiKeyValue}
+                    onChange={(e) => setApiKeyValue(e.target.value)}
+                    placeholder="sk-..."
+                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    autoFocus
+                  />
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => {
+                        setAIKey(apiKeyValue.trim());
+                        setShowApiKeyInput(false);
+                      }}
+                      className="flex-1 px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => {
+                        setApiKeyValue(getAIKey() || '');
+                        setShowApiKeyInput(false);
+                      }}
+                      className="flex-1 px-2 py-1 text-xs bg-gray-400 text-white rounded hover:bg-gray-500 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  className="mt-2 w-full text-xs bg-blue-600 text-white py-1 rounded hover:bg-blue-700 transition-colors"
+                  onClick={() => {
+                    setApiKeyValue(getAIKey() || '');
+                    setShowApiKeyInput(true);
+                  }}
+                >
+                  {getAIKey() ? 'Change API Key' : 'Configure API Key'}
+                </button>
+              )}
             </div>
           </div>
         )}
