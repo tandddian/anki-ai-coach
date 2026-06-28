@@ -22,7 +22,7 @@ export async function generateTestForDate(date: string): Promise<AITest | null> 
   const test = createTest(generatedTest.name, date);
 
   generatedTest.questions.map(q =>
-    createQuestion(test.id, q.difficulty, q.questionText, q.options, q.correctAnswer, q.explanation)
+    createQuestion(test.id, q.difficulty, q.questionType, q.questionText, q.options, q.correctAnswer, q.explanation)
   );
 
   const materialIdSet = new Set<number>();

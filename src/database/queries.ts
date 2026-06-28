@@ -142,14 +142,15 @@ export function deleteTest(id: number): void {
 export function createQuestion(
   testId: number,
   difficulty: 'easy' | 'medium' | 'hard',
+  questionType: 'multiple_choice' | 'fill_in_blank' | 'essay',
   questionText: string,
   options: string[],
   correctAnswer: string,
   explanation: string
 ): TestQuestion {
   const result = runSql(
-    'INSERT INTO test_questions (test_id, difficulty, question_text, options, correct_answer, explanation) VALUES (?, ?, ?, ?, ?, ?)',
-    [testId, difficulty, questionText, JSON.stringify(options), correctAnswer, explanation]
+    'INSERT INTO test_questions (test_id, difficulty, question_type, question_text, options, correct_answer, explanation) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [testId, difficulty, questionType, questionText, JSON.stringify(options), correctAnswer, explanation]
   );
   return getQuestionById(result.lastInsertRowid)!;
 }
