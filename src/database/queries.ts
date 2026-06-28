@@ -162,3 +162,15 @@ export function getQuestionById(id: number): TestQuestion | undefined {
     options: JSON.parse((row.options as string) || '[]'),
   } as unknown as TestQuestion;
 }
+
+export function getQuestionsByTestId(testId: number): TestQuestion[] {
+  const rows = queryAll<Record<string, unknown>>('SELECT * FROM test_questions WHERE test_id = ? ORDER BY id', [testId]);
+  return rows.map((row) => ({
+    ...row,
+    options: JSON.parse((row.options as string) || '[]'),
+  })) as unknown as TestQuestion[];
+}
+
+export function deleteQuestionsByTestId(testId: number): void {
+  runSql('DELETE FROM test_questions WHERE test_id = ?', [testId]);
+}
