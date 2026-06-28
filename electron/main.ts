@@ -74,3 +74,59 @@ ipcMain.handle('save-file', async (_event, filePath: string, data: string) => {
 ipcMain.handle('db-operation', async (_event, operation: string, params: any) => {
   return { success: true, operation, params };
 });
+
+ipcMain.handle('read-db-file', async () => {
+  try {
+    const dbPath = path.join(app.getPath('userData'), 'anki-ai-coach.db');
+    if (fs.existsSync(dbPath)) {
+      const data = fs.readFileSync(dbPath);
+      return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+    }
+    return null;
+  } catch { return null; }
+});
+
+ipcMain.handle('save-db-file', async (_event, data: ArrayBuffer) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    if (!fs.existsSync(userDataPath)) {
+      fs.mkdirSync(userDataPath, { recursive: true });
+    }
+    const dbPath = path.join(userDataPath, 'anki-ai-coach.db');
+    fs.writeFileSync(dbPath, Buffer.from(data));
+    return true;
+  } catch (error: any) {
+    throw new Error(`Failed to save database: ${error.message}`);
+  }
+});
+
+ipcMain.handle('load-wasm', async () => {
+  try {
+    const devWasmPath = path.join(process.cwd(), 'public', 'sql-wasm.wasm');
+    if (fs.existsSync(devWasmPath)) {
+      const data = fs.readFileSync(devWasmPath);
+      return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+    }
+    const nmWasmPath = path.join(process.cwd(), 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm');
+    if (fs.existsSync(nmWasmPath)) {
+      const data = fs.readFileSync(nmWasmPath);
+      return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+    }
+    return null;
+  } catch { return null; }
+});
+
+ipcMain.handle('get-app-path', async () => {
+  return app.getPath('userData');
+});
+
+app.whenReady().then(() => {
+  createWindow();
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});
