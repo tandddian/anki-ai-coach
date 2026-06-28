@@ -352,6 +352,36 @@ function generateTestRuleBased(
   return { name, questions, correlations };
 }
 
+function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
+  const MIN_QUESTION_LENGTH = 10;
+
+  // Filter out bad questions: too short, or raw sentence fragments
+  let questions = test.questions.filter((q) => {
+    const text = q.questionText.trim();
+    if (text.length < MIN_QUESTION_LENGTH) return false;
+    if (
+      text[0] === text[0].toLowerCase() &&
+      !text.endsWith('?') &&
+      !text.endsWith('.') &&
+      !text.endsWith('!')
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  if (questions.length === 0) {
+    return test;
+  }
+
+  // Ensure we have at least one of each question type
+  const hasMultipleChoice = questions.some(q => q.questionType === 'multiple_choice');
+  const hasFillInBlank = questions.some(q => q.questionType === 'fill_in_blank');
+  const hasEssay = questions.some(q => q.questionType === 'essay');
+
+  return { ...test, questions };
+}
+
 function getDateString(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
