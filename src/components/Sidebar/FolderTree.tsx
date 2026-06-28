@@ -325,6 +325,35 @@ export function FolderTree({ folderType }: FolderTreeProps) {
                 {data.name}
               </span>
             )}
+
+            {/* Hover action icons */}
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                className="w-4 h-4 flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded"
+                title="Add Subfolder"
+                onClick={e => {
+                  e.stopPropagation();
+                  handleAddSubfolder(data.folderId);
+                  node.open();
+                }}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+              <button
+                className="w-4 h-4 flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded"
+                title="Import File"
+                onClick={e => {
+                  e.stopPropagation();
+                  handleImportClick(data.folderId);
+                }}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       );
@@ -336,6 +365,8 @@ export function FolderTree({ folderType }: FolderTreeProps) {
       handleChevronClick,
       handleContextMenu,
       handleRenameSubmit,
+      handleAddSubfolder,
+      handleImportClick,
     ],
   );
 
