@@ -174,3 +174,22 @@ export function getQuestionsByTestId(testId: number): TestQuestion[] {
 export function deleteQuestionsByTestId(testId: number): void {
   runSql('DELETE FROM test_questions WHERE test_id = ?', [testId]);
 }
+
+// ============ TEST MATERIAL QUERIES ============
+
+export function createTestMaterial(testId: number, materialId: number): TestMaterial {
+  const result = runSql('INSERT OR IGNORE INTO test_materials (test_id, material_id) VALUES (?, ?)', [testId, materialId]);
+  return {
+    id: result.lastInsertRowid,
+    testId,
+    materialId,
+  };
+}
+
+export function getTestMaterialsByTestId(testId: number): TestMaterial[] {
+  return queryAll<TestMaterial>('SELECT * FROM test_materials WHERE test_id = ?', [testId]);
+}
+
+export function deleteTestMaterialsByTestId(testId: number): void {
+  runSql('DELETE FROM test_materials WHERE test_id = ?', [testId]);
+}
