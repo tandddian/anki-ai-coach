@@ -193,3 +193,27 @@ export function getTestMaterialsByTestId(testId: number): TestMaterial[] {
 export function deleteTestMaterialsByTestId(testId: number): void {
   runSql('DELETE FROM test_materials WHERE test_id = ?', [testId]);
 }
+
+// ============ ATTEMPT QUERIES ============
+
+export function createAttempt(testId: number, answers: Record<number, string>, score: number): TestAttempt {
+  const result = runSql(
+    'INSERT INTO test_attempts (test_id, answers, score) VALUES (?, ?, ?)',
+    [testId, JSON.stringify(answers), score]
+  );
+  return {
+    id: result.lastInsertRowid,
+    testId,
+    answers,
+    score,
+    completedAt: new Date().toISOString(),
+  };
+}
+
+export function getAttemptsByTestId(testId: number): TestAttempt[] {
+  const rows = queryAll<Record<string, unknown>>('SELECT * FROM test_attempts WHERE test_id = ? ORDER BY completed_at DESC', [testId]);
+  return rows.map((row) => ({
+    ...row,
+    answers: JSON.parse((row.answers as string) || '{}'),
+  })) as unknown as TestAttempt[];
+}
