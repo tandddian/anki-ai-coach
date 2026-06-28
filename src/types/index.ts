@@ -50,6 +50,22 @@ export interface TestAttempt {
   completedAt: string;
 }
 
+export interface MaterialCorrelation {
+  id: number;
+  material1Id: number;
+  material2Id: number;
+  correlationScore: number;
+}
+
+export interface AIGeneratedQuestion {
+  difficulty: Difficulty;
+  questionText: string;
+  options: string[];
+  correctAnswer: string;
+  explanation: string;
+  sourceMaterialIds: number[];
+}
+
 export interface Folder {
   id: number;
   name: string;
