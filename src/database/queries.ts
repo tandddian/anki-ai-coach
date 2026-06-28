@@ -70,3 +70,22 @@ export function getDueMaterials(date?: string): Material[] {
   const today = date || getDateString(new Date());
   return queryAll<Material>('SELECT * FROM materials WHERE next_review <= ? ORDER BY next_review', [today]);
 }
+
+export function updateMaterial(id: number, updates: Partial<Material>): Material | undefined {
+  const allowedFields = ['name', 'path', 'type', 'folder_id', 'content_text', 'due_date', 'interval', 'ease_factor', 'repetitions', 'next_review'];
+  const setClauses: string[] = [];
+  const values: (string | number | null)[] = [];
+
+  for (const [key, value] of Object.entries(updates)) {
+    if (allowedFields.includes(key)) {
+      setClauses.push(`${key} = ?`);
+      values.push(value as string | number | null);
+    }
+  }
+
+  if (setClauses.length === 0) return getMaterialById(id);
+
+  values.push(id);
+  runSql(`UPDATE materials SET ${setClauses.join(', ')} WHERE id = ?`, values);
+  return getMaterialById(id);
+}
