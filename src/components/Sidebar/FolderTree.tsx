@@ -2,8 +2,6 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Tree, type NodeApi, type NodeRendererProps, type TreeApi } from 'react-arborist';
 import { useStore } from '../../store';
 import { Folder, FolderType } from '../../types';
-import { parseFile } from '../../utils/fileParser';
-import { createMaterial } from '../../database/queries';
 import { ImportMaterialModal } from '../Modals/ImportMaterialModal';
 
 interface TreeNode {
@@ -44,7 +42,6 @@ export function FolderTree({ folderType }: FolderTreeProps) {
   const addFolder = useStore(state => state.addFolder);
   const removeFolder = useStore(state => state.removeFolder);
   const loadMaterials = useStore(state => state.loadMaterials);
-  const refreshMaterials = useStore(state => state.refreshMaterials);
 
   const [contextMenu, setContextMenu] = useState<{
     folderId: number;
@@ -58,11 +55,6 @@ export function FolderTree({ folderType }: FolderTreeProps) {
 
   const treeRef = useRef<TreeApi<TreeNode> | null>(null);
   const pendingOpenRef = useRef<Set<string>>(new Set());
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const importingFolderRef = useRef<number | null>(null);
-
-  const [isImporting, setIsImporting] = useState(false);
-  const [importError, setImportError] = useState<string | null>(null);
 
   const treeData = useMemo(
     () => buildTree(folders, folderType),
