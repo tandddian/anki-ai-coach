@@ -142,12 +142,12 @@ export function RightSidebar() {
             <div className="bg-blue-50 rounded-lg p-3">
               <p className="text-[10px] font-medium text-blue-600 uppercase mb-2">AI Settings</p>
               <p className="text-xs text-blue-800">
-                To enable AI-powered test generation, set your OpenAI API key in the configuration.
+                To enable AI-powered test generation, set your DeepSeek API key in the configuration.
               </p>
               <button
                 className="mt-2 w-full text-xs bg-blue-600 text-white py-1 rounded hover:bg-blue-700 transition-colors"
                 onClick={() => {
-                  const key = prompt('Enter your OpenAI API key:');
+                  const key = prompt('Enter your DeepSeek API key:');
                   if (key) {
                     const { setAIKey } = require('../../services/ai');
                     setAIKey(key.trim());

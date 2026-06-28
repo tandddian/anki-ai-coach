@@ -14,6 +14,7 @@ export function MainContent() {
   const testResults = useStore(state => state.testResults);
   const generateTest = useStore(state => state.generateTest);
   const loadTests = useStore(state => state.loadTests);
+  const materials = useStore(state => state.materials);
 
   const [showGenerateConfirm, setShowGenerateConfirm] = useState(false);
 

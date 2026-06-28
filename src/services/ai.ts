@@ -1,7 +1,7 @@
 import { Material, AIGeneratedTest, AIGeneratedQuestion, MaterialCorrelation } from '../types';
 
 // Configurable AI API endpoint
-const AI_API_URL = 'https://api.openai.com/v1/chat/completions';
+const AI_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 let aiApiKey: string | null = null;
 
 export function setAIKey(key: string): void {
@@ -115,7 +115,7 @@ Please analyze these materials, score their correlations, and generate a compreh
       'Authorization': `Bearer ${aiApiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4',
+      model: 'deepseek-chat',
       messages: [
         { role: 'system', content: buildSystemPrompt() },
         { role: 'user', content: userPrompt },
