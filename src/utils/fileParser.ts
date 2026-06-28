@@ -1,6 +1,7 @@
 export async function parsePDF(buffer: Uint8Array): Promise<string> {
   try {
-    const pdfParse = require('pdf-parse');
+    const pdfModule = await import('pdf-parse');
+    const pdfParse = pdfModule.default || pdfModule;
     const data = await pdfParse(buffer);
     return data.text || '';
   } catch (error) {
@@ -11,7 +12,7 @@ export async function parsePDF(buffer: Uint8Array): Promise<string> {
 
 export async function parseDOCX(buffer: Uint8Array): Promise<string> {
   try {
-    const mammoth = require('mammoth');
+    const mammoth = await import('mammoth');
     const result = await mammoth.extractRawText({ buffer });
     return result.value || '';
   } catch (error) {
@@ -22,7 +23,8 @@ export async function parseDOCX(buffer: Uint8Array): Promise<string> {
 
 export async function parsePPTX(buffer: Uint8Array): Promise<string> {
   try {
-    const JSZip = require('docx4js');
+    const JSZipModule = await import('docx4js');
+    const JSZip = JSZipModule.default || JSZipModule;
     const zip = await JSZip.loadAsync(buffer);
     const slideFiles = Object.keys(zip.files)
       .filter(name => name.startsWith('ppt/slides/slide') && name.endsWith('.xml'))
