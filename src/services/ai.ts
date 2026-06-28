@@ -156,3 +156,32 @@ Please analyze these materials, score their correlations, and generate a compreh
     correlations: parsed.correlations || correlations,
   };
 }
+
+function generateTestRuleBased(
+  materials: Material[],
+  correlations: { material1Id: number; material2Id: number; score: number }[]
+): AIGeneratedTest {
+  const questions: AIGeneratedQuestion[] = [];
+  const allSentences: { text: string; materialId: number }[] = [];
+
+  for (const material of materials) {
+    const sentences = material.contentText
+      .split(/[.!?]+/)
+      .map(s => s.trim())
+      .filter(s => s.length > 30 && s.length < 300);
+    for (const sentence of sentences) {
+      allSentences.push({ text: sentence, materialId: material.id });
+    }
+  }
+
+  const keyTerms = new Set<string>();
+  for (const sentence of allSentences) {
+    const words = sentence.text.split(/\s+/);
+    for (const word of words) {
+      const clean = word.replace(/[^a-zA-Z0-9-]/g, '');
+      if (clean.length > 5 || (clean.length > 2 && clean[0] === clean[0].toUpperCase())) {
+        keyTerms.add(clean);
+      }
+    }
+  }
+  const termsList = Array.from(keyTerms).slice(0, 50);
