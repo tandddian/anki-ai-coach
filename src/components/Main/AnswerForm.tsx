@@ -31,11 +31,25 @@ export function AnswerForm({
           disabled={disabled}
           placeholder="Write your answer here... (minimum a few sentences)"
           rows={6}
-          className="w-full px-3 py-2 text-sm border rounded-lg resize-none
+          className={`
+            w-full px-3 py-2 text-sm border rounded-lg resize-none
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
             disabled:bg-gray-50 disabled:text-gray-500
-            border-gray-300"
+            ${showResult && correctAnswer
+              ? userAnswer.trim().toLowerCase().includes(correctAnswer.trim().toLowerCase()) ||
+                correctAnswer.trim().toLowerCase().includes(userAnswer.trim().toLowerCase())
+                ? 'border-green-500 bg-green-50'
+                : 'border-red-500 bg-red-50'
+              : 'border-gray-300'
+            }
+          `}
         />
+        {showResult && correctAnswer && (
+          <div className="mt-2">
+            <p className="text-xs text-gray-500">Model answer:</p>
+            <p className="text-sm text-gray-800 mt-1 p-2 bg-gray-50 rounded">{correctAnswer}</p>
+          </div>
+        )}
       </div>
     );
   }
