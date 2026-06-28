@@ -36,6 +36,20 @@ export interface TestQuestion {
   explanation: string;
 }
 
+export interface TestMaterial {
+  id: number;
+  testId: number;
+  materialId: number;
+}
+
+export interface TestAttempt {
+  id: number;
+  testId: number;
+  answers: Record<number, string>;
+  score: number;
+  completedAt: string;
+}
+
 export interface Folder {
   id: number;
   name: string;
