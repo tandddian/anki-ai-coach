@@ -11,3 +11,31 @@ export interface SM2Output {
   interval: number;
   nextReview: Date;
 }
+
+/**
+ * Pure implementation of the SM-2 spaced repetition algorithm.
+ * Quality: 5=perfect, 4=correct after hesitation, 3=correct with difficulty,
+ * 2=incorrect, easy recall, 1=incorrect, remembered, 0=complete blackout
+ */
+export function calculateSM2(input: SM2Input, reviewDate: Date = new Date()): SM2Output {
+  const { quality, repetitions, easeFactor, interval } = input;
+
+  let newRepetitions: number;
+  let newEaseFactor: number;
+  let newInterval: number;
+
+  const q = Math.max(0, Math.min(5, Math.round(quality)));
+
+  if (q >= 3) {
+    if (repetitions === 0) {
+      newInterval = 1;
+    } else if (repetitions === 1) {
+      newInterval = 6;
+    } else {
+      newInterval = Math.round(interval * easeFactor);
+    }
+    newRepetitions = repetitions + 1;
+  } else {
+    newRepetitions = 0;
+    newInterval = 1;
+  }
