@@ -53,5 +53,25 @@ export function createTables(): void {
       FOREIGN KEY (material_id) REFERENCES materials(id) ON DELETE CASCADE,
       UNIQUE(test_id, material_id)
     );
+
+    CREATE TABLE IF NOT EXISTS test_attempts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      test_id INTEGER NOT NULL,
+      answers TEXT NOT NULL DEFAULT '{}',
+      score REAL NOT NULL DEFAULT 0,
+      completed_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (test_id) REFERENCES ai_tests(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS material_correlations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      material1_id INTEGER NOT NULL,
+      material2_id INTEGER NOT NULL,
+      correlation_score REAL NOT NULL DEFAULT 0,
+      FOREIGN KEY (material1_id) REFERENCES materials(id) ON DELETE CASCADE,
+      FOREIGN KEY (material2_id) REFERENCES materials(id) ON DELETE CASCADE,
+      UNIQUE(material1_id, material2_id),
+      CHECK(material1_id < material2_id)
+    );
   `);
 }
