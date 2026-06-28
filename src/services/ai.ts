@@ -69,8 +69,32 @@ export async function summarizeToTutorial(
     ? 'Combine ALL files into ONE unified tutorial. Output the JSON with a single "name" and "content" field.'
     : `Create ${files.length} separate tutorials, one per file. Output JSON with a "tutorials" array containing ${files.length} objects.`;
 
-  // AI call and response parsing added in next commit
-  return [{ name: 'placeholder', content: '' }];
+  const response = await fetch(AI_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${aiApiKey}` },
+    body: JSON.stringify({
+      model: 'deepseek-chat',
+      messages: [
+        { role: 'system', content: TUTORIAL_PROMPT },
+        { role: 'user', content: `${instruction}\n\nFiles:\n${filesCtx}` },
+      ],
+      temperature: 0.7, max_tokens: 4000,
+    }),
+  });
+  if (!response.ok) throw new Error(`AI API error: ${response.status}`);
+  const content = (await response.json()).choices[0]?.message?.content;
+  if (!content) throw new Error('No content in AI response');
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('No valid JSON in AI response');
+  const parsed = JSON.parse(jsonMatch[0]);
+
+  if (mode === 'merge') {
+    return [{ name: parsed.name || 'Tutorial', content: parsed.content || '' }];
+  }
+  return (parsed.tutorials || []).map((t: any) => ({
+    name: t.name || 'Tutorial',
+    content: t.content || '',
+  }));
 }
 
 function buildSystemPrompt(): string {
