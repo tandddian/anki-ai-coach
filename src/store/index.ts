@@ -39,8 +39,11 @@ interface AppState {
   isLoadingMaterials: boolean;
   isLoadingTests: boolean;
 
+  testListRefreshKey: number;
+
   setSelectedDate: (date: Date) => void;
   selectTest: (test: AITest | null) => void;
+  selectTestFromList: (test: AITest) => void;
   loadFolders: () => Promise<void>;
   loadMaterials: (folderId?: number) => Promise<void>;
   loadDueMaterials: (date: Date) => Promise<void>;
@@ -72,6 +75,8 @@ export const useStore = create<AppState>((set, get) => ({
   isLoadingMaterials: false,
   isLoadingTests: false,
 
+  testListRefreshKey: 0,
+
   setSelectedDate: (date: Date) => {
     set({ selectedDate: date, selectedTest: null, testResults: null, showTestResults: false });
     get().loadTests(date);
@@ -94,6 +99,27 @@ export const useStore = create<AppState>((set, get) => ({
     } else {
       set({ currentQuestions: [], currentMaterials: [] });
     }
+  },
+
+  selectTestFromList: (test: AITest) => {
+    const testDate = new Date(test.testDate);
+    const dateStr = getDateString(testDate);
+    const questions = getQuestionsByTestId(test.id);
+    const testMaterials = getTestMaterialsByTestId(test.id);
+    const materialIds = testMaterials.map(tm => tm.materialId);
+    const materials = getMaterialsByIds(materialIds);
+    const tests = getTestsByDate(dateStr);
+    const dueMaterials = getDueMaterials(dateStr);
+    set({
+      selectedDate: testDate,
+      selectedTest: test,
+      currentQuestions: questions,
+      currentMaterials: materials,
+      tests,
+      materials: dueMaterials,
+      testResults: null,
+      showTestResults: false,
+    });
   },
 
   loadFolders: async () => {
@@ -159,6 +185,7 @@ export const useStore = create<AppState>((set, get) => ({
         set({ isGenerating: false });
         await get().loadTests(date);
         get().selectTest(test);
+        set(state => ({ testListRefreshKey: state.testListRefreshKey + 1 }));
       } else {
         set({
           isGenerating: false,
