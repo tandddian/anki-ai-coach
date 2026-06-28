@@ -276,3 +276,29 @@ async function seed(): Promise<void> {
     'C',
     'Newton\'s Second Law F = ma directly connects to calculus because acceleration is the second derivative of position. Writing F = m(d²x/dt²) transforms it into a differential equation. For any given force function F(t) or F(x), this equation can be solved using integration techniques to predict the exact position x(t) of an object at any time.'
   );
+
+  createTestMaterial(sampleTest.id, calculusMaterial.id);
+  createTestMaterial(sampleTest.id, linearAlgebraMaterial.id);
+  createTestMaterial(sampleTest.id, wwiiMaterial.id);
+
+  console.log('\nSeed data created successfully!');
+  console.log('============================');
+  console.log('Folders created: 8');
+  console.log('Materials created: 5');
+  console.log('Tests created: 1');
+  console.log('Questions created: 7');
+  console.log('Correlations created: 3');
+  console.log(`\nMaterials due today: ${getDateString(new Date())}`);
+  console.log('- Introduction to Calculus (interval: 6, EF: 2.5)');
+  console.log('- Linear Algebra Fundamentals (interval: 1, EF: 2.3)');
+  console.log('- World War II Overview (interval: 0, EF: 2.5)');
+  console.log(`\nMaterials due tomorrow: ${getDateOffset(1)}`);
+  console.log('- Classical Mechanics');
+
+  await closeDatabase();
+}
+
+seed().catch(error => {
+  console.error('Seed failed:', error);
+  process.exit(1);
+});
