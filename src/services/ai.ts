@@ -82,7 +82,7 @@ Return ONLY valid JSON:
 }
 
 ## Important Notes:
-- Questions MUST be in English
+- Questions should use the same language as the source materials
 - Multiple choice options formatted as "A. text", "B. text", etc.
 - correctAnswer should be just the letter (e.g., "A", "B")
 - For cross-material questions, include all relevant material IDs
