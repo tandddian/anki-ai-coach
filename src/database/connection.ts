@@ -113,3 +113,28 @@ export function runSql(sql: string, params: SqlParams = []): { lastInsertRowid: 
     : 0;
   return { lastInsertRowid, changes };
 }
+
+// Helper: run SELECT and return typed rows
+type SqlParams = (string | number | null)[];
+
+export function queryAll<T = Record<string, unknown>>(sql: string, params: SqlParams = []): T[] {
+  const database = getDb();
+  const stmt = database.prepare(sql);
+  stmt.bind(params);
+  const rows: T[] = [];
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject() as unknown as T);
+  }
+  stmt.free();
+  return rows;
+}
+
+export function queryOne<T = Record<string, unknown>>(sql: string, params: SqlParams = []): T | undefined {
+  const rows = queryAll<T>(sql, params);
+  return rows.length > 0 ? rows[0] : undefined;
+}
+
+export function execSql(sql: string): void {
+  const database = getDb();
+  database.run(sql);
+}
