@@ -3,5 +3,11 @@
   "version": "1.0.0",
   "description": "AI-powered spaced repetition learning desktop app",
   "type": "module",
-  "main": "dist-electron/main.js"
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "seed": "tsx src/database/seed.ts",
+    "dev": "tsc -p tsconfig.electron.json && echo '{\"type\":\"commonjs\"}' > dist-electron/package.json && concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "build": "vite build && tsc -p tsconfig.electron.json",
+    "preview": "vite preview"
+  }
 }
