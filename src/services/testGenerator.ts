@@ -37,3 +37,11 @@ export async function generateTestForDate(date: string): Promise<AITest | null> 
 
   return test;
 }
+
+export async function getOrGenerateTest(date: string): Promise<AITest | null> {
+  const existingTests = getTestsByDate(date);
+  if (existingTests.length > 0) {
+    return existingTests[0];
+  }
+  return generateTestForDate(date);
+}
