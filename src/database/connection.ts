@@ -27,3 +27,26 @@ function getDbPath(): string {
 export function setDbPath(p: string): void {
   dbPath = p;
 }
+
+export function getDb(): SqlJsDatabase {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDatabase() first.');
+  }
+  return db;
+}
+
+export async function initDatabase(filePath?: string): Promise<void> {
+  if (filePath) {
+    dbPath = filePath;
+  }
+
+  if (!SQL) {
+    if (isNode) {
+      SQL = await initSqlJs();
+    } else {
+      const wasmData = await loadWasmBinary();
+      SQL = await initSqlJs({
+        wasmBinary: wasmData,
+      });
+    }
+  }
