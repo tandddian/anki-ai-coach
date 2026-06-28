@@ -441,35 +441,6 @@ export function FolderTree({ folderType }: FolderTreeProps) {
         </div>
       )}
 
-      {/* Hidden file input for import */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        accept=".pdf,.docx,.pptx,.md,.markdown,.txt,.csv,.tsv,.apkg"
-        className="hidden"
-        onChange={handleFileChange}
-      />
-
-      {/* Import status */}
-      {isImporting && (
-        <div className="fixed top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-xs flex items-center gap-2">
-          <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent" />
-          Importing...
-        </div>
-      )}
-      {importError && (
-        <div className="fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-xs">
-          {importError}
-          <button
-            className="ml-2 underline"
-            onClick={() => setImportError(null)}
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
-
       {/* Import Material Modal */}
       {importModalFolderId !== null && (
         <ImportMaterialModal
