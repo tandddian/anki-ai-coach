@@ -42,25 +42,32 @@ You will receive multiple study materials. For each material, you must:
 
 ## Question Generation Rules
 
+### Question Types (MUST include all three):
+- **multiple_choice**: Traditional 4-option MCQs. Distribute correct answers across A/B/C/D — NOT all the same letter.
+- **fill_in_blank**: Sentence with a blank (marked as "___"). Provide 4 answer choices. The correct answer is the word/phrase that fills the blank.
+- **essay**: Open-ended synthesis/analysis question requiring paragraph-length response. No options needed (empty array). Provide a model answer in correctAnswer.
+
+### Required Distribution:
+- At least 2 multiple_choice questions
+- At least 1 fill_in_blank question
+- At least 1 essay question
+
 ### Difficulty Levels:
 
 **Easy (concept identification, simple recall):**
 - Test basic familiarity with the material
 - Simple multiple-choice with obvious distractors
 - Direct recall of definitions, names, dates
-- Generate at least 2 easy questions
 
 **Medium (key points, must-know content):**
 - Most important concepts in each material
 - Multiple-choice with plausible but incorrect alternatives
 - Application of concepts to simple scenarios
-- Generate at least 3 medium questions
 
 **Hard (deeper understanding, cross-material synthesis):**
 - Require synthesizing information from multiple materials
 - Questions requiring inference, analysis, or evaluation
 - For materials with correlation >= 7, create cross-material questions
-- Generate at least 2 hard questions
 
 ## Output Format
 Return ONLY valid JSON:
