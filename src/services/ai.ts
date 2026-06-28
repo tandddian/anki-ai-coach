@@ -432,6 +432,28 @@ function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
     }
   }
 
+  // Check that multiple_choice questions don't all have the same correct letter
+  const mcQuestions = questions.filter(q => q.questionType === 'multiple_choice');
+  if (mcQuestions.length >= 2) {
+    const allSameLetter = mcQuestions.every(
+      q => q.correctAnswer.toUpperCase() === mcQuestions[0].correctAnswer.toUpperCase()
+    );
+    if (allSameLetter) {
+      const letters = ['A', 'B', 'C', 'D'];
+      mcQuestions.forEach((q, idx) => {
+        const newLetter = letters[idx % letters.length];
+        const currentIdx = q.correctAnswer.toUpperCase().charCodeAt(0) - 65;
+        const newIdx = newLetter.charCodeAt(0) - 65;
+        if (currentIdx !== newIdx && currentIdx < q.options.length && newIdx < q.options.length) {
+          const temp = q.options[currentIdx];
+          q.options[currentIdx] = q.options[newIdx];
+          q.options[newIdx] = temp;
+        }
+        q.correctAnswer = newLetter;
+      });
+    }
+  }
+
   return { ...test, questions };
 }
 
