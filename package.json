@@ -9,5 +9,16 @@
     "dev": "tsc -p tsconfig.electron.json && echo '{\"type\":\"commonjs\"}' > dist-electron/package.json && concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "vite build && tsc -p tsconfig.electron.json",
     "preview": "vite preview"
+  },
+  "dependencies": {
+    "docx4js": "^3.2.0",
+    "mammoth": "^1.6.0",
+    "marked": "^12.0.0",
+    "pdf-parse": "^1.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "sql.js": "^1.14.1",
+    "zustand": "^4.4.0"
   }
 }
