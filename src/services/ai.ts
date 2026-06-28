@@ -163,6 +163,7 @@ Please analyze these materials, score their correlations, and generate a compreh
     name: fixTestName(parsed.name),
     questions: (parsed.questions || []).map((q: any) => ({
       difficulty: q.difficulty || 'easy',
+      questionType: q.questionType || 'multiple_choice',
       questionText: q.questionText || '',
       options: q.options || [],
       correctAnswer: q.correctAnswer || '',
@@ -186,7 +187,7 @@ function generateTestRuleBased(
   correlations: { material1Id: number; material2Id: number; score: number }[]
 ): AIGeneratedTest {
   const questions: AIGeneratedQuestion[] = [];
-  const allSentences: { text: string; materialId: number }[] = [];
+  const allSentences: { text: string; materialId: number; materialName: string }[] = [];
 
   for (const material of materials) {
     const sentences = material.contentText
@@ -194,7 +195,7 @@ function generateTestRuleBased(
       .map(s => s.trim())
       .filter(s => s.length > 30 && s.length < 300);
     for (const sentence of sentences) {
-      allSentences.push({ text: sentence, materialId: material.id });
+      allSentences.push({ text: sentence, materialId: material.id, materialName: material.name });
     }
   }
 
