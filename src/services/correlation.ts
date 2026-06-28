@@ -58,3 +58,22 @@ function calculateCorrelationScore(material1: Material, material2: Material): nu
 
   return Math.max(1, Math.min(10, Math.round(score)));
 }
+
+function extractKeywords(text: string): string[] {
+  if (!text) return [];
+
+  const words = text
+    .toLowerCase()
+    .split(/[\s,.;:!?()\[\]{}"'\/\\]+/)
+    .filter(w => w.length > 4)
+    .filter(w => !isStopWord(w));
+
+  const freq: Record<string, number> = {};
+  for (const word of words) {
+    freq[word] = (freq[word] || 0) + 1;
+  }
+
+  return Object.entries(freq)
+    .filter(([_, count]) => count >= 2)
+    .map(([word]) => word);
+}
