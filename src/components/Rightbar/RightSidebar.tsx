@@ -3,6 +3,7 @@ import { useStore } from '../../store';
 import { SourceMaterialList } from './SourceMaterialList';
 import { AddFolderModal } from '../Modals/AddFolderModal';
 import { ImportMaterialModal } from '../Modals/ImportMaterialModal';
+import { setAIKey } from '../../services/ai';
 
 export function RightSidebar() {
   const selectedTest = useStore(state => state.selectedTest);
@@ -149,7 +150,6 @@ export function RightSidebar() {
                 onClick={() => {
                   const key = prompt('Enter your DeepSeek API key:');
                   if (key) {
-                    const { setAIKey } = require('../../services/ai');
                     setAIKey(key.trim());
                     alert('API key set successfully!');
                   }
