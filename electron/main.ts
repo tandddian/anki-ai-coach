@@ -39,3 +39,38 @@ function createWindow(): void {
     mainWindow = null;
   });
 }
+
+// ========== IPC Handlers ==========
+
+ipcMain.handle('open-file-dialog', async () => {
+  if (!mainWindow) return [];
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile', 'multiSelections'],
+    filters: [
+      { name: 'Documents', extensions: ['pdf', 'docx', 'pptx', 'md', 'txt', 'csv', 'tsv', 'apkg'] },
+      { name: 'All Files', extensions: ['*'] },
+    ],
+  });
+  return result.canceled ? [] : result.filePaths;
+});
+
+ipcMain.handle('read-file', async (_event, filePath: string) => {
+  try {
+    return fs.readFileSync(filePath);
+  } catch (error: any) {
+    throw new Error(`Failed to read file: ${error.message}`);
+  }
+});
+
+ipcMain.handle('save-file', async (_event, filePath: string, data: string) => {
+  try {
+    fs.writeFileSync(filePath, data, 'utf-8');
+    return true;
+  } catch (error: any) {
+    throw new Error(`Failed to save file: ${error.message}`);
+  }
+});
+
+ipcMain.handle('db-operation', async (_event, operation: string, params: any) => {
+  return { success: true, operation, params };
+});
