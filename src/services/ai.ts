@@ -107,3 +107,52 @@ Reference IDs:
 ${materials.map(m => `- Material ${m.id}: "${m.name}" (${m.type})`).join('\n')}
 
 Please analyze these materials, score their correlations, and generate a comprehensive test following the system prompt instructions.`;
+
+  const response = await fetch(AI_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${aiApiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: buildSystemPrompt() },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 4000,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`AI API error: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices[0]?.message?.content;
+
+  if (!content) {
+    throw new Error('No content in AI response');
+  }
+
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error('No valid JSON found in AI response');
+  }
+
+  const parsed = JSON.parse(jsonMatch[0]);
+
+  return {
+    name: parsed.name || `${getDateString(new Date())} - AI Generated Test`,
+    questions: (parsed.questions || []).map((q: any) => ({
+      difficulty: q.difficulty || 'easy',
+      questionText: q.questionText || '',
+      options: q.options || [],
+      correctAnswer: q.correctAnswer || '',
+      explanation: q.explanation || '',
+      sourceMaterialIds: q.sourceMaterialIds || [],
+    })),
+    correlations: parsed.correlations || correlations,
+  };
+}
