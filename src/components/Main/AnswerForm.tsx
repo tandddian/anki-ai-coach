@@ -80,6 +80,36 @@ export function AnswerForm({
           />
           {parts[1]}
         </div>
+
+        {/* Clickable options for fill-in-blank */}
+        <div className="space-y-2">
+          {question.options.map((option, idx) => {
+            const match = option.match(/^([A-D])[.)]\s*(.+)$/i);
+            const label = match ? match[1] : String.fromCharCode(65 + idx);
+            const text = match ? match[2] : option;
+            const isSelected = userAnswer.toUpperCase() === label.toUpperCase();
+            return (
+              <label
+                key={idx}
+                className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer
+                  ${disabled ? 'cursor-not-allowed' : 'hover:border-blue-300'}
+                  ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
+                `}
+                onClick={() => { if (!disabled) onAnswerChange(label); }}
+              >
+                <input type="radio" name={`question-${question.id}`} value={label}
+                  checked={isSelected} onChange={() => onAnswerChange(label)}
+                  disabled={disabled} className="mt-0.5 text-blue-600 focus:ring-blue-500" />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-gray-500 w-5">{label}.</span>
+                    <span className="text-sm text-gray-700">{text}</span>
+                  </div>
+                </div>
+              </label>
+            );
+          })}
+        </div>
       </div>
     );
   }
