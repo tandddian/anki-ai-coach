@@ -405,6 +405,33 @@ function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
     }
   }
 
+  // Validate multiple choice questions
+  for (const q of questions.filter(q => q.questionType === 'multiple_choice')) {
+    // Ensure exactly 4 options
+    if (q.options.length < 4) {
+      while (q.options.length < 4) {
+        q.options.push(`${String.fromCharCode(65 + q.options.length)}. Alternative answer`);
+      }
+    } else if (q.options.length > 4) {
+      q.options = q.options.slice(0, 4);
+    }
+
+    // Ensure correctAnswer is a valid letter
+    const answerLetter = q.correctAnswer.trim().toUpperCase();
+    if (!['A', 'B', 'C', 'D'].includes(answerLetter)) {
+      let found = false;
+      for (let i = 0; i < q.options.length; i++) {
+        const optText = q.options[i].replace(/^[A-D][.)]\s*/, '').trim();
+        if (optText.toLowerCase() === answerLetter.toLowerCase()) {
+          q.correctAnswer = String.fromCharCode(65 + i);
+          found = true;
+          break;
+        }
+      }
+      if (!found) q.correctAnswer = 'A';
+    }
+  }
+
   return { ...test, questions };
 }
 
