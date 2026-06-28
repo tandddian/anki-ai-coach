@@ -89,3 +89,21 @@ Return ONLY valid JSON:
 - Each question should reference at least one source material
 - The test name should be descriptive of the combined topics`;
 }
+
+async function generateTestWithAI(
+  materials: Material[],
+  correlations: { material1Id: number; material2Id: number; score: number }[]
+): Promise<AIGeneratedTest> {
+  const materialsContext = materials.map((m) => {
+    const preview = m.contentText.substring(0, 2000);
+    return `[Material ${m.id}] Name: ${m.name}\nType: ${m.type}\nContent Preview:\n${preview}`;
+  }).join('\n\n---\n\n');
+
+  const userPrompt = `Here are the study materials for today's test:
+
+${materialsContext}
+
+Reference IDs:
+${materials.map(m => `- Material ${m.id}: "${m.name}" (${m.type})`).join('\n')}
+
+Please analyze these materials, score their correlations, and generate a comprehensive test following the system prompt instructions.`;
