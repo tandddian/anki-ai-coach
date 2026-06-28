@@ -24,3 +24,21 @@ function getDateOffset(daysFromNow: number): string {
   date.setDate(date.getDate() + daysFromNow);
   return getDateString(date);
 }
+
+async function seed(): Promise<void> {
+  console.log('Initializing database...');
+
+  await initDatabase();
+  createTables();
+
+  console.log('Creating folders...');
+
+  const mathFolder = createFolder('Mathematics', 'material');
+  const historyFolder = createFolder('History', 'material');
+  const scienceFolder = createFolder('Science', 'material');
+  const programmingFolder = createFolder('Programming', 'material');
+  const languagesFolder = createFolder('Languages', 'material');
+
+  const mathReview = createFolder('Math Review', 'question');
+  const historyReview = createFolder('History Review', 'question');
+  const scienceReview = createFolder('Science Review', 'question');
