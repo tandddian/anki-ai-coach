@@ -201,37 +201,8 @@ export function FolderTree({ folderType }: FolderTreeProps) {
       setIsImporting(true);
       setImportError(null);
 
-      try {
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const buffer = await file.arrayBuffer();
-          const bufferObj = new Uint8Array(buffer);
-          const result = await parseFile(file.name, bufferObj, file.type);
-          const materialType = getMaterialType(file.name);
-
-          createMaterial(
-            file.name,
-            file.name,
-            materialType,
-            targetFolderId,
-            result.text,
-          );
-        }
-
-        await refreshMaterials();
-        if (targetFolderId) {
-          loadMaterials(targetFolderId);
-        }
-      } catch (err: any) {
-        setImportError(err.message || 'Failed to import file');
-      } finally {
-        setIsImporting(false);
-        importingFolderRef.current = null;
-        // Reset file input so the same file can be re-imported
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-      }
+      // File parsing is now handled by ImportMaterialModal
+      e.target.files = null;
     },
     [loadMaterials, refreshMaterials],
   );
