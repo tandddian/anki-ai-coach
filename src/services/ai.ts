@@ -379,6 +379,32 @@ function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
   const hasFillInBlank = questions.some(q => q.questionType === 'fill_in_blank');
   const hasEssay = questions.some(q => q.questionType === 'essay');
 
+  // Convert some questions if types are missing
+  if (!hasFillInBlank && questions.length >= 2) {
+    const toConvert = questions.find(q => q.questionType !== 'essay');
+    if (toConvert) {
+      toConvert.questionType = 'fill_in_blank';
+      if (!toConvert.questionText.includes('___')) {
+        const words = toConvert.questionText.split(' ');
+        if (words.length > 3) {
+          const replaceIdx = Math.floor(words.length / 2);
+          const replaced = words[replaceIdx];
+          words[replaceIdx] = '___';
+          toConvert.questionText = words.join(' ');
+        }
+      }
+    }
+  }
+
+  if (!hasEssay) {
+    const toConvert = questions.find(q => q.questionType === 'multiple_choice');
+    if (toConvert) {
+      toConvert.questionType = 'essay';
+      toConvert.options = [];
+      toConvert.correctAnswer = `Model answer: ${toConvert.explanation || 'Review the source material.'}`;
+    }
+  }
+
   return { ...test, questions };
 }
 
