@@ -136,3 +136,29 @@ export function getTestsByDate(date: string): AITest[] {
 export function deleteTest(id: number): void {
   runSql('DELETE FROM ai_tests WHERE id = ?', [id]);
 }
+
+// ============ QUESTION QUERIES ============
+
+export function createQuestion(
+  testId: number,
+  difficulty: 'easy' | 'medium' | 'hard',
+  questionText: string,
+  options: string[],
+  correctAnswer: string,
+  explanation: string
+): TestQuestion {
+  const result = runSql(
+    'INSERT INTO test_questions (test_id, difficulty, question_text, options, correct_answer, explanation) VALUES (?, ?, ?, ?, ?, ?)',
+    [testId, difficulty, questionText, JSON.stringify(options), correctAnswer, explanation]
+  );
+  return getQuestionById(result.lastInsertRowid)!;
+}
+
+export function getQuestionById(id: number): TestQuestion | undefined {
+  const row = queryOne<Record<string, unknown>>('SELECT * FROM test_questions WHERE id = ?', [id]);
+  if (!row) return undefined;
+  return {
+    ...row,
+    options: JSON.parse((row.options as string) || '[]'),
+  } as unknown as TestQuestion;
+}
