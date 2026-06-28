@@ -217,3 +217,28 @@ export function getAttemptsByTestId(testId: number): TestAttempt[] {
     answers: JSON.parse((row.answers as string) || '{}'),
   })) as unknown as TestAttempt[];
 }
+
+// ============ CORRELATION QUERIES ============
+
+export function createCorrelation(material1Id: number, material2Id: number, correlationScore: number): MaterialCorrelation {
+  if (material1Id > material2Id) {
+    [material1Id, material2Id] = [material2Id, material1Id];
+  }
+  const result = runSql(
+    'INSERT OR REPLACE INTO material_correlations (material1_id, material2_id, correlation_score) VALUES (?, ?, ?)',
+    [material1Id, material2Id, correlationScore]
+  );
+  return {
+    id: result.lastInsertRowid,
+    material1Id,
+    material2Id,
+    correlationScore,
+  };
+}
+
+export function getCorrelationsByMaterialId(materialId: number): MaterialCorrelation[] {
+  return queryAll<MaterialCorrelation>(
+    'SELECT * FROM material_correlations WHERE material1_id = ? OR material2_id = ?',
+    [materialId, materialId]
+  );
+}
