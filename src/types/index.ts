@@ -2,6 +2,8 @@ export type MaterialType = 'pdf' | 'docx' | 'pptx' | 'md' | 'anki';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
+export type QuestionType = 'multiple_choice' | 'fill_in_blank' | 'essay';
+
 export type FolderType = 'material' | 'question';
 
 export interface Material {
@@ -30,6 +32,7 @@ export interface TestQuestion {
   id: number;
   testId: number;
   difficulty: Difficulty;
+  questionType: QuestionType;
   questionText: string;
   options: string[];
   correctAnswer: string;
@@ -59,6 +62,7 @@ export interface MaterialCorrelation {
 
 export interface AIGeneratedQuestion {
   difficulty: Difficulty;
+  questionType: QuestionType;
   questionText: string;
   options: string[];
   correctAnswer: string;
