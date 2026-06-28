@@ -55,3 +55,41 @@ body {
 .folder-tree-item:hover {
   background-color: #f3f4f6;
 }
+
+.question-card {
+  transition: all 0.3s ease;
+}
+
+.question-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.difficulty-easy {
+  background-color: #22c55e;
+  color: white;
+}
+
+.difficulty-medium {
+  background-color: #eab308;
+  color: white;
+}
+
+.difficulty-hard {
+  background-color: #ef4444;
+  color: white;
+}
+
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
