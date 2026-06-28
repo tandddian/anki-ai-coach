@@ -220,6 +220,7 @@ async function seed(): Promise<void> {
   createQuestion(
     sampleTest.id,
     'easy',
+    'multiple_choice',
     'What is the derivative of x^n according to the Power Rule?',
     ['A. nx^(n+1)', 'B. nx^(n-1)', 'C. (n-1)x^n', 'D. x^(n)'],
     'B',
@@ -229,6 +230,7 @@ async function seed(): Promise<void> {
   createQuestion(
     sampleTest.id,
     'easy',
+    'multiple_choice',
     'In which year did World War II begin?',
     ['A. 1937', 'B. 1938', 'C. 1939', 'D. 1941'],
     'C',
@@ -238,6 +240,7 @@ async function seed(): Promise<void> {
   createQuestion(
     sampleTest.id,
     'medium',
+    'multiple_choice',
     'What does the Fundamental Theorem of Calculus establish?',
     ['A. That all functions are differentiable', 'B. That differentiation and integration are inverse operations', 'C. That integrals always converge', 'D. That derivatives are always continuous'],
     'B',
@@ -247,6 +250,7 @@ async function seed(): Promise<void> {
   createQuestion(
     sampleTest.id,
     'medium',
+    'multiple_choice',
     'Which of the following was NOT a major cause of World War II?',
     ['A. Treaty of Versailles', 'B. Rise of fascism', 'C. The Industrial Revolution', 'D. Failure of the League of Nations'],
     'C',
@@ -256,6 +260,7 @@ async function seed(): Promise<void> {
   createQuestion(
     sampleTest.id,
     'medium',
+    'multiple_choice',
     'What is the relationship between eigenvalues and eigenvectors in linear algebra?',
     ['A. Eigenvalues are always larger than eigenvectors', 'B. They are unrelated concepts', 'C. For a matrix A, an eigenvector v satisfies Av = λv where λ is the eigenvalue', 'D. Eigenvectors measure the size of eigenvalues'],
     'C',
@@ -265,6 +270,7 @@ async function seed(): Promise<void> {
   createQuestion(
     sampleTest.id,
     'hard',
+    'multiple_choice',
     'How does calculus relate to linear algebra in the context of multi-variable functions? Consider both the Jacobian and Hessian matrices.',
     ['A. Calculus is completely independent of linear algebra', 'B. Linear algebra replaces calculus for multi-variable functions', 'C. The Jacobian and Hessian matrices use linear algebra to organize partial derivatives, connecting both fields', 'D. Linear algebra only provides notation without adding value'],
     'C',
@@ -274,6 +280,7 @@ async function seed(): Promise<void> {
   createQuestion(
     sampleTest.id,
     'hard',
+    'multiple_choice',
     'Analyze the relationship between Newton\'s Second Law (F = ma) in physics and the mathematical concepts of derivatives in calculus. How does this connection enable the prediction of motion?',
     ['A. There is no mathematical connection between F=ma and calculus', 'B. F=ma only uses basic algebra, not calculus', 'C. Since acceleration a = dv/dt = d²x/dt², Newton\'s Second Law becomes a differential equation F = m(d²x/dt²) that can be solved to predict position over time', 'D. Calculus is only useful for constant forces'],
     'C',
