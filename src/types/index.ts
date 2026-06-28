@@ -19,6 +19,23 @@ export interface Material {
   createdAt: string;
 }
 
+export interface AITest {
+  id: number;
+  name: string;
+  testDate: string;
+  createdAt: string;
+}
+
+export interface TestQuestion {
+  id: number;
+  testId: number;
+  difficulty: Difficulty;
+  questionText: string;
+  options: string[];
+  correctAnswer: string;
+  explanation: string;
+}
+
 export interface Folder {
   id: number;
   name: string;
