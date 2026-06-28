@@ -54,11 +54,12 @@ export function AnswerForm({
     );
   }
 
-  // Fill-in-blank: render question text with inline input
+  // Fill-in-blank: render question text with inline input, plus clickable options
   if (questionType === 'fill_in_blank' && question.questionText.includes('___')) {
     const parts = question.questionText.split('___');
     return (
       <div className="space-y-3">
+        {/* Display question text with inline blank indicator */}
         <div className="text-sm text-gray-800 leading-relaxed">
           {parts[0]}
           <input
@@ -89,10 +90,12 @@ export function AnswerForm({
             const match = option.match(/^([A-D])[.)]\s*(.+)$/i);
             const label = match ? match[1] : String.fromCharCode(65 + idx);
             const text = match ? match[2] : option;
+
             const isSelected = userAnswer.toUpperCase() === label.toUpperCase();
             const isCorrectAnswer = correctAnswer?.toUpperCase() === label.toUpperCase();
             const showCorrect = showResult && isCorrectAnswer;
             const showWrong = showResult && isSelected && !isCorrectAnswer;
+
             return (
               <label
                 key={idx}
@@ -105,6 +108,7 @@ export function AnswerForm({
                 `}
                 onClick={() => {
                   if (!disabled) {
+                    // Set both the letter AND the option text as the answer
                     onAnswerChange(label);
                   }
                 }}
@@ -124,10 +128,14 @@ export function AnswerForm({
                     <span className="text-sm text-gray-700">{text}</span>
                   </div>
                   {showCorrect && (
-                    <span className="text-xs text-green-600 mt-1 inline-block">Correct answer</span>
+                    <span className="text-xs text-green-600 mt-1 inline-block">
+                      Correct answer
+                    </span>
                   )}
                   {showWrong && (
-                    <span className="text-xs text-red-600 mt-1 inline-block">Your answer</span>
+                    <span className="text-xs text-red-600 mt-1 inline-block">
+                      Your answer
+                    </span>
                   )}
                 </div>
               </label>
