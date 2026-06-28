@@ -89,3 +89,27 @@ export function updateMaterial(id: number, updates: Partial<Material>): Material
   runSql(`UPDATE materials SET ${setClauses.join(', ')} WHERE id = ?`, values);
   return getMaterialById(id);
 }
+
+export function updateMaterialSM2(
+  id: number,
+  interval: number,
+  easeFactor: number,
+  repetitions: number,
+  nextReview: string
+): Material | undefined {
+  runSql(
+    'UPDATE materials SET interval = ?, ease_factor = ?, repetitions = ?, next_review = ? WHERE id = ?',
+    [interval, easeFactor, repetitions, nextReview, id]
+  );
+  return getMaterialById(id);
+}
+
+export function deleteMaterial(id: number): void {
+  runSql('DELETE FROM materials WHERE id = ?', [id]);
+}
+
+export function getMaterialsByIds(ids: number[]): Material[] {
+  if (ids.length === 0) return [];
+  const placeholders = ids.map(() => '?').join(',');
+  return queryAll<Material>(`SELECT * FROM materials WHERE id IN (${placeholders})`, ids);
+}
