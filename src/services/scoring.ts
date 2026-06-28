@@ -80,3 +80,33 @@ function updateMaterialSchedules(
     );
   }
 }
+
+function checkAnswer(userAnswer: string, correctAnswer: string, options: string[]): boolean {
+  const normalizedUser = userAnswer.toUpperCase().trim();
+  const normalizedCorrect = correctAnswer.toUpperCase().trim();
+
+  if (normalizedUser === normalizedCorrect) return true;
+
+  // Check if user answered with the full option text
+  for (const option of options) {
+    const match = option.match(/^([A-D])[.)]?\s*(.+)$/i);
+    if (match) {
+      const letter = match[1].toUpperCase();
+      const text = match[2].trim();
+      if (letter === normalizedCorrect && normalizedUser === text.toUpperCase()) {
+        return true;
+      }
+      if (letter === normalizedUser && text.toUpperCase() === normalizedCorrect.toUpperCase()) {
+        return true;
+      }
+    }
+  }
+
+  // Open-ended question matching
+  if (options.length === 0) {
+    return normalizedUser.includes(normalizedCorrect) ||
+           normalizedCorrect.includes(normalizedUser);
+  }
+
+  return false;
+}
