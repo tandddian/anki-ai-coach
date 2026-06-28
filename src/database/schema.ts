@@ -74,4 +74,19 @@ export function createTables(): void {
       CHECK(material1_id < material2_id)
     );
   `);
+
+  execSql(`
+    CREATE INDEX IF NOT EXISTS idx_materials_folder ON materials(folder_id);
+    CREATE INDEX IF NOT EXISTS idx_materials_next_review ON materials(next_review);
+    CREATE INDEX IF NOT EXISTS idx_materials_due_date ON materials(due_date);
+    CREATE INDEX IF NOT EXISTS idx_test_questions_test ON test_questions(test_id);
+    CREATE INDEX IF NOT EXISTS idx_test_materials_test ON test_materials(test_id);
+    CREATE INDEX IF NOT EXISTS idx_test_materials_material ON test_materials(material_id);
+    CREATE INDEX IF NOT EXISTS idx_test_attempts_test ON test_attempts(test_id);
+    CREATE INDEX IF NOT EXISTS idx_correlations_m1 ON material_correlations(material1_id);
+    CREATE INDEX IF NOT EXISTS idx_correlations_m2 ON material_correlations(material2_id);
+    CREATE INDEX IF NOT EXISTS idx_ai_tests_date ON ai_tests(test_date);
+    CREATE INDEX IF NOT EXISTS idx_folders_parent ON folders(parent_id);
+    CREATE INDEX IF NOT EXISTS idx_folders_type ON folders(type);
+  `);
 }
