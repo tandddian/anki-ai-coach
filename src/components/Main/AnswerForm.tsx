@@ -54,6 +54,36 @@ export function AnswerForm({
     );
   }
 
+  // Fill-in-blank: render question text with inline input
+  if (questionType === 'fill_in_blank' && question.questionText.includes('___')) {
+    const parts = question.questionText.split('___');
+    return (
+      <div className="space-y-3">
+        <div className="text-sm text-gray-800 leading-relaxed">
+          {parts[0]}
+          <input
+            type="text"
+            value={userAnswer}
+            onChange={(e) => onAnswerChange(e.target.value)}
+            disabled={disabled}
+            placeholder="______"
+            className={`inline-block min-w-[120px] px-2 py-0.5 text-sm border-b-2
+              focus:outline-none focus:border-blue-500
+              disabled:bg-gray-50 disabled:text-gray-500
+              ${showResult && correctAnswer
+                ? userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase()
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-red-500 bg-red-50'
+                : 'border-gray-300'
+              }
+            `}
+          />
+          {parts[1]}
+        </div>
+      </div>
+    );
+  }
+
   // Multiple choice
   if (hasOptions) {
     return (
