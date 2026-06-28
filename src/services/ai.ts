@@ -1,5 +1,33 @@
 import { Material, AIGeneratedTest, AIGeneratedQuestion, MaterialCorrelation } from '../types';
 
+export interface FileContent {
+  name: string;
+  content: string;
+}
+
+export interface TutorialResult {
+  name: string;
+  content: string;
+}
+
+const TUTORIAL_PROMPT = `You are an expert educator and technical writer. Your task is to create a well-structured, comprehensive Markdown tutorial from the provided study materials.
+
+## Instructions
+1. Read ALL provided file contents carefully
+2. Identify the main topics, key concepts, definitions, and relationships
+3. Organize the content into a logical learning progression
+4. Write in clear, instructional prose — explain concepts as if teaching a student
+5. Use proper Markdown formatting: headings (##, ###), bullet lists, code blocks, emphasis
+6. Include a brief "Key Takeaways" section at the end
+7. The tutorial should be self-contained — a reader should understand the topic without referring to the original files
+
+## Output Format
+Return ONLY valid JSON. For merge mode (combine all files):
+{"name": "Concise tutorial title (max 80 chars)", "content": "Full Markdown tutorial text"}
+
+For separate mode (one tutorial per file):
+{"tutorials": [{"name": "Tutorial title for file 1", "content": "Markdown content"}, ...]}`;
+
 // Configurable AI API endpoint
 const AI_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 let aiApiKey: string | null = null;
