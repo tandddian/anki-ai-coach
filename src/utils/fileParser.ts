@@ -1,4 +1,4 @@
-export async function parsePDF(buffer: Buffer): Promise<string> {
+export async function parsePDF(buffer: Uint8Array): Promise<string> {
   try {
     const pdfParse = require('pdf-parse');
     const data = await pdfParse(buffer);
@@ -9,7 +9,7 @@ export async function parsePDF(buffer: Buffer): Promise<string> {
   }
 }
 
-export async function parseDOCX(buffer: Buffer): Promise<string> {
+export async function parseDOCX(buffer: Uint8Array): Promise<string> {
   try {
     const mammoth = require('mammoth');
     const result = await mammoth.extractRawText({ buffer });
@@ -20,7 +20,7 @@ export async function parseDOCX(buffer: Buffer): Promise<string> {
   }
 }
 
-export async function parsePPTX(buffer: Buffer): Promise<string> {
+export async function parsePPTX(buffer: Uint8Array): Promise<string> {
   try {
     const JSZip = require('docx4js');
     const zip = await JSZip.loadAsync(buffer);
@@ -67,23 +67,25 @@ export async function parseAnkiFile(content: string): Promise<string> {
   }
 }
 
-export async function parseFile(filePath: string, buffer: Buffer, fileType: string): Promise<{ text: string; type: string }> {
+export async function parseFile(filePath: string, buffer: Uint8Array, fileType: string): Promise<{ text: string; type: string }> {
   const extension = getFileExtension(filePath).toLowerCase();
+  const decoder = new TextDecoder();
   switch (extension) {
     case 'pdf': return { text: await parsePDF(buffer), type: 'pdf' };
     case 'docx': return { text: await parseDOCX(buffer), type: 'docx' };
     case 'pptx': return { text: await parsePPTX(buffer), type: 'pptx' };
-    case 'md': case 'markdown': return { text: await parseMD(buffer.toString('utf-8')), type: 'md' };
-    case 'apkg': case 'csv': case 'tsv': case 'txt': return { text: await parseAnkiFile(buffer.toString('utf-8')), type: 'anki' };
+    case 'md': case 'markdown': return { text: await parseMD(decoder.decode(buffer)), type: 'md' };
+    case 'apkg': case 'csv': case 'tsv': case 'txt': return { text: await parseAnkiFile(decoder.decode(buffer)), type: 'anki' };
     default:
-      try { return { text: buffer.toString('utf-8'), type: 'md' }; }
+      try { return { text: decoder.decode(buffer), type: 'md' }; }
       catch { return { text: '', type: 'unknown' }; }
   }
 }
 
-function extractTextFromBuffer(buffer: Buffer): string {
+function extractTextFromBuffer(buffer: Uint8Array): string {
   try {
-    const text = buffer.toString('utf-8');
+    const decoder = new TextDecoder();
+    const text = decoder.decode(buffer);
     const readableParts: string[] = [];
     const textMatcher = /[\x20-\x7E\u00A0-\uFFFF]{10,}/g;
     let match;

@@ -205,7 +205,7 @@ export function FolderTree({ folderType }: FolderTreeProps) {
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
           const buffer = await file.arrayBuffer();
-          const bufferObj = Buffer.from(buffer);
+          const bufferObj = new Uint8Array(buffer);
           const result = await parseFile(file.name, bufferObj, file.type);
           const materialType = getMaterialType(file.name);
 

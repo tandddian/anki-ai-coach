@@ -57,7 +57,7 @@ export function ImportMaterialModal({ onClose }: ImportMaterialModalProps) {
 
     try {
       const buffer = await selectedFile.arrayBuffer();
-      const bufferObj = Buffer.from(buffer);
+      const bufferObj = new Uint8Array(buffer);
 
       setParseProgress(`Parsing ${selectedFile.type || selectedFile.name.split('.').pop()} file...`);
       const result = await parseFile(selectedFile.name, bufferObj, selectedFile.type);
