@@ -110,3 +110,33 @@ function checkAnswer(userAnswer: string, correctAnswer: string, options: string[
 
   return false;
 }
+
+export function getTestResultBreakdown(
+  testId: number,
+  userAnswers: Record<number, string>
+): {
+  questionId: number;
+  difficulty: string;
+  questionText: string;
+  userAnswer: string;
+  correctAnswer: string;
+  explanation: string;
+  isCorrect: boolean;
+}[] {
+  const questions = getQuestionsByTestId(testId);
+
+  return questions.map(q => {
+    const userAnswer = userAnswers[q.id] || '';
+    const isCorrect = checkAnswer(userAnswer.trim(), q.correctAnswer.trim(), q.options);
+
+    return {
+      questionId: q.id,
+      difficulty: q.difficulty,
+      questionText: q.questionText,
+      userAnswer,
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation,
+      isCorrect,
+    };
+  });
+}
