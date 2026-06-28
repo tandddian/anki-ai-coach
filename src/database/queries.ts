@@ -242,3 +242,23 @@ export function getCorrelationsByMaterialId(materialId: number): MaterialCorrela
     [materialId, materialId]
   );
 }
+
+export function getCorrelationBetweenTwo(material1Id: number, material2Id: number): MaterialCorrelation | undefined {
+  if (material1Id > material2Id) {
+    [material1Id, material2Id] = [material2Id, material1Id];
+  }
+  return queryOne<MaterialCorrelation>(
+    'SELECT * FROM material_correlations WHERE material1_id = ? AND material2_id = ?',
+    [material1Id, material2Id]
+  );
+}
+
+export function deleteCorrelationsByMaterialId(materialId: number): void {
+  runSql('DELETE FROM material_correlations WHERE material1_id = ? OR material2_id = ?', [materialId, materialId]);
+}
+
+// ============ UTILITY ============
+
+function getDateString(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
