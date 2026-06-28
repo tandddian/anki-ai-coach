@@ -236,18 +236,6 @@ export function FolderTree({ folderType }: FolderTreeProps) {
     [loadMaterials, refreshMaterials],
   );
 
-  function getMaterialType(fileName: string): 'pdf' | 'docx' | 'pptx' | 'md' | 'anki' {
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'pdf': return 'pdf';
-      case 'docx': return 'docx';
-      case 'pptx': return 'pptx';
-      case 'md':
-      case 'markdown': return 'md';
-      default: return 'anki';
-    }
-  }
-
   // Custom node renderer
   const NodeRenderer = useCallback(
     ({ node, style }: NodeRendererProps<TreeNode>) => {
