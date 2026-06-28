@@ -311,20 +311,23 @@ function generateTestRuleBased(
         `C. "${m1.name}" fully explains everything in "${m2.name}"`,
         `D. "${m2.name}" contradicts the main points of "${m1.name}"`,
       ];
+      // Shuffle so correct answer isn't always B
       const correctText = `They share overlapping themes that complement each other`;
       const shuffledHard = [...hardOptions].sort(() => Math.random() - 0.5);
-      const relettered = shuffledHard.map((opt, idx) =>
-        `${String.fromCharCode(65 + idx)}.${opt.substring(2)}`);
+      const relettered = shuffledHard.map((opt, idx) => {
+        // Replace original letter with new position letter
+        return `${String.fromCharCode(65 + idx)}.${opt.substring(2)}`;
+      });
       const correctOptionIdx = shuffledHard.findIndex(opt => opt.includes(correctText));
       const correctLetter = String.fromCharCode(65 + (correctOptionIdx >= 0 ? correctOptionIdx : 1));
 
       questions.push({
         difficulty: 'hard',
         questionType: 'multiple_choice',
-        questionText: `How does the concept from "${m1.name}" relate to the content in "${m2.name}"?`,
+        questionText: `How does the concept from "${m1.name}" relate to the content in "${m2.name}"? Provide a synthesis of the key ideas from both materials.`,
         options: relettered,
         correctAnswer: correctLetter,
-        explanation: `Both materials share thematic connections. "${m1.name}" covers foundational concepts that relate to the ideas presented in "${m2.name}".`,
+        explanation: `Both materials share thematic connections. "${m1.name}" covers foundational concepts that relate to the ideas presented in "${m2.name}". Cross-referencing both provides a more complete understanding.`,
         sourceMaterialIds: [pair.material1Id, pair.material2Id],
       });
     }
@@ -343,8 +346,8 @@ function generateTestRuleBased(
       questionType: 'essay',
       questionText: `Based on the material "${essayMaterial.name}", explain the key concepts and their significance. Provide specific examples from the source material to support your analysis.`,
       options: [],
-      correctAnswer: `Model answer: The material "${essayMaterial.name}" covers important concepts including: ${topic}... These concepts are significant because they form the foundation for understanding the broader subject matter.`,
-      explanation: `Essay questions encourage deeper understanding and synthesis of the material.`,
+      correctAnswer: `Model answer: The material "${essayMaterial.name}" covers important concepts including: ${topic}... These concepts are significant because they form the foundation for understanding the broader subject matter and have practical applications in related fields.`,
+      explanation: `Essay questions encourage deeper understanding and synthesis of the material. Compare your response to the key points covered in the source.`,
       sourceMaterialIds: [essayMaterial.id],
     });
   }
@@ -355,6 +358,9 @@ function generateTestRuleBased(
   return { name, questions, correlations };
 }
 
+/**
+ * Post-generation validation: cleans up and enforces quality standards on generated tests.
+ */
 function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
   const MIN_QUESTION_LENGTH = 10;
 
