@@ -424,11 +424,23 @@ function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
   }
 
   if (!hasEssay) {
+    // Convert the last multiple_choice question to essay, or add a fallback
     const toConvert = questions.find(q => q.questionType === 'multiple_choice');
     if (toConvert) {
       toConvert.questionType = 'essay';
       toConvert.options = [];
-      toConvert.correctAnswer = `Model answer: ${toConvert.explanation || 'Review the source material.'}`;
+      toConvert.correctAnswer = `Model answer: ${toConvert.explanation || 'Review the source material for the key concepts related to this topic.'}`;
+    } else {
+      // Add a fallback essay question
+      questions.push({
+        difficulty: 'medium',
+        questionType: 'essay',
+        questionText: 'Summarize the key concepts covered in today\'s study materials and explain how they connect to each other.',
+        options: [],
+        correctAnswer: 'A comprehensive answer should identify the main topics from each study material, explain the core concepts, and discuss how they relate to form a broader understanding of the subject matter.',
+        explanation: 'This essay tests your ability to synthesize information across multiple materials.',
+        sourceMaterialIds: [],
+      });
     }
   }
 
@@ -445,7 +457,9 @@ function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
 
     // Ensure correctAnswer is a valid letter
     const answerLetter = q.correctAnswer.trim().toUpperCase();
-    if (!['A', 'B', 'C', 'D'].includes(answerLetter)) {
+    const validLetters = ['A', 'B', 'C', 'D'];
+    if (!validLetters.includes(answerLetter)) {
+      // Try to find the correct answer in the options
       let found = false;
       for (let i = 0; i < q.options.length; i++) {
         const optText = q.options[i].replace(/^[A-D][.)]\s*/, '').trim();
@@ -455,7 +469,9 @@ function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
           break;
         }
       }
-      if (!found) q.correctAnswer = 'A';
+      if (!found) {
+        q.correctAnswer = 'A';
+      }
     }
   }
 
@@ -466,12 +482,16 @@ function validateGeneratedTest(test: AIGeneratedTest): AIGeneratedTest {
       q => q.correctAnswer.toUpperCase() === mcQuestions[0].correctAnswer.toUpperCase()
     );
     if (allSameLetter) {
+      // Reassign to distribute across A, B, C, D
       const letters = ['A', 'B', 'C', 'D'];
       mcQuestions.forEach((q, idx) => {
         const newLetter = letters[idx % letters.length];
-        const currentIdx = q.correctAnswer.toUpperCase().charCodeAt(0) - 65;
+        // Swap options so the new letter has the correct answer
+        const currentLetter = q.correctAnswer.toUpperCase();
+        const currentIdx = currentLetter.charCodeAt(0) - 65;
         const newIdx = newLetter.charCodeAt(0) - 65;
         if (currentIdx !== newIdx && currentIdx < q.options.length && newIdx < q.options.length) {
+          // Swap options at currentIdx and newIdx
           const temp = q.options[currentIdx];
           q.options[currentIdx] = q.options[newIdx];
           q.options[newIdx] = temp;
