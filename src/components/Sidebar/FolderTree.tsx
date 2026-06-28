@@ -192,21 +192,6 @@ export function FolderTree({ folderType }: FolderTreeProps) {
     setContextMenu(null);
   }, []);
 
-  const handleFileChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (!files || files.length === 0) return;
-
-      const targetFolderId = importingFolderRef.current;
-      setIsImporting(true);
-      setImportError(null);
-
-      // File parsing is now handled by ImportMaterialModal
-      e.target.files = null;
-    },
-    [loadMaterials, refreshMaterials],
-  );
-
   // Custom node renderer
   const NodeRenderer = useCallback(
     ({ node, style }: NodeRendererProps<TreeNode>) => {
