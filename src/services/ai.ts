@@ -286,7 +286,7 @@ function generateTestRuleBased(
     });
   }
 
-  // Hard questions (cross-material synthesis for high-correlation pairs)
+  // Hard questions: multiple_choice cross-material synthesis with randomized correct answer
   const highCorrelationPairs = correlations.filter(c => c.score >= 7);
   const pairsToUse = highCorrelationPairs.length > 0
     ? highCorrelationPairs.slice(0, 2)
@@ -302,17 +302,26 @@ function generateTestRuleBased(
     const m1 = materials.find(m => m.id === pair.material1Id);
     const m2 = materials.find(m => m.id === pair.material2Id);
     if (m1 && m2) {
+      const hardOptions = [
+        `A. They are completely unrelated topics with no connection`,
+        `B. They share overlapping themes that complement each other`,
+        `C. "${m1.name}" fully explains everything in "${m2.name}"`,
+        `D. "${m2.name}" contradicts the main points of "${m1.name}"`,
+      ];
+      const correctText = `They share overlapping themes that complement each other`;
+      const shuffledHard = [...hardOptions].sort(() => Math.random() - 0.5);
+      const relettered = shuffledHard.map((opt, idx) =>
+        `${String.fromCharCode(65 + idx)}.${opt.substring(2)}`);
+      const correctOptionIdx = shuffledHard.findIndex(opt => opt.includes(correctText));
+      const correctLetter = String.fromCharCode(65 + (correctOptionIdx >= 0 ? correctOptionIdx : 1));
+
       questions.push({
         difficulty: 'hard',
-        questionText: `How does the concept from "${m1.name}" relate to the content in "${m2.name}"? Provide a synthesis of the key ideas from both materials.`,
-        options: [
-          `A. They are completely unrelated topics with no connection`,
-          `B. They share overlapping themes that complement each other`,
-          `C. "${m1.name}" fully explains everything in "${m2.name}"`,
-          `D. "${m2.name}" contradicts the main points of "${m1.name}"`,
-        ],
-        correctAnswer: 'B',
-        explanation: `Both materials share thematic connections. "${m1.name}" covers foundational concepts that relate to the ideas presented in "${m2.name}". Cross-referencing both provides a more complete understanding.`,
+        questionType: 'multiple_choice',
+        questionText: `How does the concept from "${m1.name}" relate to the content in "${m2.name}"?`,
+        options: relettered,
+        correctAnswer: correctLetter,
+        explanation: `Both materials share thematic connections. "${m1.name}" covers foundational concepts that relate to the ideas presented in "${m2.name}".`,
         sourceMaterialIds: [pair.material1Id, pair.material2Id],
       });
     }
