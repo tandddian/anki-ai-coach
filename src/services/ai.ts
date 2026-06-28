@@ -60,5 +60,32 @@ You will receive multiple study materials. For each material, you must:
 - Require synthesizing information from multiple materials
 - Questions requiring inference, analysis, or evaluation
 - For materials with correlation >= 7, create cross-material questions
-- Generate at least 2 hard questions`;
+- Generate at least 2 hard questions
+
+## Output Format
+Return ONLY valid JSON:
+{
+  "name": "YYYY/MM/DD - Brief Topic Summary (max 60 chars)",
+  "correlations": [
+    { "material1Id": <number>, "material2Id": <number>, "score": <1-10> }
+  ],
+  "questions": [
+    {
+      "difficulty": "easy|medium|hard",
+      "questionText": "The question content",
+      "options": ["A. option1", "B. option2", "C. option3", "D. option4"],
+      "correctAnswer": "A",
+      "explanation": "Why this is correct",
+      "sourceMaterialIds": [<material id>]
+    }
+  ]
+}
+
+## Important Notes:
+- Questions MUST be in English
+- Multiple choice options formatted as "A. text", "B. text", etc.
+- correctAnswer should be just the letter (e.g., "A", "B")
+- For cross-material questions, include all relevant material IDs
+- Each question should reference at least one source material
+- The test name should be descriptive of the combined topics`;
 }
