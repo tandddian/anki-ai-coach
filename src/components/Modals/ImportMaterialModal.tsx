@@ -1,112 +1,97 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useStore } from '../../store';
-import { createMaterial, getAllMaterials } from '../../database/queries';
-import { Folder, FolderType } from '../../types';
+import { createMaterial } from '../../database/queries';
+import { Folder } from '../../types';
 import { parseFile } from '../../utils/fileParser';
+import { summarizeToTutorial, FileContent, TutorialResult } from '../../services/ai';
 
 interface ImportMaterialModalProps {
   onClose: () => void;
   initialFolderId?: number | null;
 }
 
+interface SelectedFile {
+  name: string;
+  path: string;
+  text: string;
+}
+
+type ImportStep = 'select' | 'summarize' | 'preview';
+
 export function ImportMaterialModal({ onClose, initialFolderId = null }: ImportMaterialModalProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(initialFolderId);
   const [isParsing, setIsParsing] = useState(false);
   const [parseProgress, setParseProgress] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [parsedText, setParsedText] = useState('');
   const [importComplete, setImportComplete] = useState(false);
+  const [mode, setMode] = useState<'merge' | 'separate'>('merge');
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const [tutorials, setTutorials] = useState<TutorialResult[]>([]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const folders = useStore(state => state.folders);
   const refreshMaterials = useStore(state => state.refreshMaterials);
-
   const materialFolders = folders.filter(f => f.type === 'material');
 
-  const acceptedFileTypes = '.pdf,.docx,.pptx,.md,.markdown,.txt,.csv,.tsv,.apkg';
-  const acceptedMimeTypes = [
-    'application/pdf',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'text/markdown',
-    'text/plain',
-    'text/csv',
-    'text/tab-separated-values',
-  ].join(',');
+  const step: ImportStep = tutorials.length > 0 ? 'preview'
+    : selectedFiles.length > 0 ? 'summarize' : 'select';
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      setSelectedFile(file);
+  const handleSelectFiles = async () => {
+    try {
+      const paths = await window.electronAPI.openFileDialog();
+      if (!paths || paths.length === 0) return;
+      setIsParsing(true);
       setError(null);
-      setParsedText('');
-      setImportComplete(false);
+      const files: SelectedFile[] = [];
+      const errors: string[] = [];
+      for (let i = 0; i < paths.length; i++) {
+        const path = paths[i];
+        setParseProgress(`Reading file ${i + 1}/${paths.length}...`);
+        try {
+          const raw = await window.electronAPI.readFile(path);
+          if (!raw) { errors.push(`Could not read: ${path}`); continue; }
+          const buffer = new Uint8Array(raw as unknown as ArrayBuffer);
+          const name = path.split('/').pop() || path;
+          const result = await parseFile(name, buffer, '');
+          files.push({ name, path, text: result.text });
+        } catch (e: any) {
+          errors.push(`${path}: ${e.message}`);
+        }
+      }
+      if (errors.length > 0) setError(errors.join('; '));
+      setSelectedFiles(files);
+    } catch (err: any) {
+      setError(`Failed: ${err.message}`);
+    } finally {
+      setIsParsing(false);
+      setParseProgress('');
     }
   };
 
-  const handleParseFile = async () => {
-    if (!selectedFile) {
-      setError('Please select a file first');
-      return;
-    }
-
-    setIsParsing(true);
-    setParseProgress('Reading file...');
+  const handleSummarize = async () => {
+    setIsSummarizing(true);
     setError(null);
-
     try {
-      const buffer = await selectedFile.arrayBuffer();
-      const bufferObj = new Uint8Array(buffer);
-
-      setParseProgress(`Parsing ${selectedFile.type || selectedFile.name.split('.').pop()} file...`);
-      const result = await parseFile(selectedFile.name, bufferObj, selectedFile.type);
-
-      setParsedText(result.text);
-      setParseProgress(`Extracted ${result.text.length} characters of text.`);
+      const fileContents: FileContent[] = selectedFiles.map(f => ({ name: f.name, content: f.text }));
+      const results = await summarizeToTutorial(fileContents, mode);
+      setTutorials(results);
     } catch (err: any) {
-      setError(`Failed to parse file: ${err.message}`);
+      setError(`AI summarization failed: ${err.message}`);
     } finally {
-      setIsParsing(false);
+      setIsSummarizing(false);
     }
   };
 
   const handleImport = async () => {
-    if (!selectedFile) return;
-
     try {
-      const fileType = getMaterialType(selectedFile.name);
-
-      createMaterial(
-        selectedFile.name,
-        selectedFile.name,
-        fileType,
-        selectedFolderId,
-        parsedText
-      );
-
+      for (const tutorial of tutorials) {
+        createMaterial(tutorial.name, tutorial.name, 'md', selectedFolderId, tutorial.content);
+      }
       setImportComplete(true);
       await refreshMaterials();
-
-      // Auto-close after a short delay
-      setTimeout(() => {
-        onClose();
-      }, 1500);
+      setTimeout(() => onClose(), 1500);
     } catch (err: any) {
       setError(`Failed to import: ${err.message}`);
-    }
-  };
-
-  const getMaterialType = (fileName: string): 'pdf' | 'docx' | 'pptx' | 'md' | 'anki' => {
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'pdf': return 'pdf';
-      case 'docx': return 'docx';
-      case 'pptx': return 'pptx';
-      case 'md':
-      case 'markdown': return 'md';
-      default: return 'anki';
     }
   };
 
@@ -116,11 +101,8 @@ export function ImportMaterialModal({ onClose, initialFolderId = null }: ImportM
       <div className="relative bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4 max-h-[80vh] flex flex-col z-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Import Material</h3>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded transition-colors"
-          >
+          <h3 className="text-lg font-semibold text-gray-900">Import Materials</h3>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded transition-colors">
             <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -140,73 +122,98 @@ export function ImportMaterialModal({ onClose, initialFolderId = null }: ImportM
             <svg className="w-8 h-8 text-green-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p className="text-sm text-green-700 font-medium">Material imported successfully!</p>
+            <p className="text-sm text-green-700 font-medium">
+              {tutorials.length} tutorial(s) imported successfully!
+            </p>
           </div>
         )}
 
-        {/* File picker */}
-        <div className="mb-4">
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Select File
-          </label>
-          <div
-            className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors cursor-pointer"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept={acceptedFileTypes}
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-            {selectedFile ? (
-              <div>
-                <svg className="w-8 h-8 text-blue-500 mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-                </svg>
-                <p className="text-sm font-medium text-gray-900">{selectedFile.name}</p>
-                <p className="text-xs text-gray-500">
-                  {(selectedFile.size / 1024).toFixed(1)} KB
-                </p>
-              </div>
-            ) : (
-              <div>
-                <svg className="w-8 h-8 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <p className="text-sm text-gray-600">Click to select a file</p>
-                <p className="text-xs text-gray-400 mt-1">PDF, DOCX, PPTX, MD, TXT, CSV, APKG</p>
-              </div>
-            )}
+        {/* Step 1: File Selection */}
+        {step === 'select' && (
+          <div className="mb-4">
+            <label className="block text-xs font-medium text-gray-700 mb-1">Select Files</label>
+            <button
+              onClick={handleSelectFiles}
+              disabled={isParsing}
+              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors disabled:opacity-50"
+            >
+              {isParsing ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent" />
+                  <span className="text-sm text-gray-600">{parseProgress}</span>
+                </div>
+              ) : (
+                <div>
+                  <svg className="w-8 h-8 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <p className="text-sm text-gray-600">Click to select files</p>
+                  <p className="text-xs text-gray-400 mt-1">PDF, DOCX, PPTX, MD, TXT, CSV</p>
+                </div>
+              )}
+            </button>
           </div>
-        </div>
-
-        {/* Parse button */}
-        {selectedFile && !parsedText && (
-          <button
-            onClick={handleParseFile}
-            disabled={isParsing}
-            className="w-full mb-4 px-4 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-          >
-            {isParsing ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                {parseProgress}
-              </>
-            ) : (
-              'Parse File Content'
-            )}
-          </button>
         )}
 
-        {/* Folder selection */}
-        {parsedText && (
+        {/* Selected files list */}
+        {selectedFiles.length > 0 && (
+          <div className="mb-3">
+            <p className="text-xs font-medium text-gray-700 mb-1">
+              {selectedFiles.length} file(s) selected:
+            </p>
+            <div className="max-h-24 overflow-y-auto bg-gray-50 rounded p-2">
+              {selectedFiles.map((f, i) => (
+                <p key={i} className="text-xs text-gray-600 truncate">{f.name}</p>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Mode + Summarize */}
+        {step === 'summarize' && (
+          <div className="space-y-3 mb-4">
+            {selectedFiles.length > 1 && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setMode('merge')}
+                  className={`flex-1 px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+                    mode === 'merge' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  Merge into One
+                </button>
+                <button
+                  onClick={() => setMode('separate')}
+                  className={`flex-1 px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+                    mode === 'separate' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  Separate Tutorials
+                </button>
+              </div>
+            )}
+            <button
+              onClick={handleSummarize}
+              disabled={isSummarizing}
+              className="w-full px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+            >
+              {isSummarizing ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                  AI is generating tutorial...
+                </>
+              ) : (
+                'Summarize with AI'
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Step 3: Preview + Import */}
+        {step === 'preview' && (
           <div className="flex-1 overflow-y-auto space-y-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Target Folder
-              </label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Target Folder</label>
               <select
                 value={selectedFolderId || ''}
                 onChange={(e) => setSelectedFolderId(e.target.value ? Number(e.target.value) : null)}
@@ -214,27 +221,27 @@ export function ImportMaterialModal({ onClose, initialFolderId = null }: ImportM
               >
                 <option value="">No folder (root)</option>
                 {materialFolders.map(folder => (
-                  <option key={folder.id} value={folder.id}>
-                    {folder.name}
-                  </option>
+                  <option key={folder.id} value={folder.id}>{folder.name}</option>
                 ))}
               </select>
             </div>
-
-            {/* Text preview */}
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
-                Extracted Text Preview
+                {tutorials.length} tutorial(s) generated
               </label>
-              <div className="max-h-32 overflow-y-auto bg-gray-50 rounded-lg p-2 border border-gray-200">
-                <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">
-                  {parsedText.substring(0, 500)}
-                  {parsedText.length > 500 && '...'}
-                </p>
-              </div>
-              <p className="text-[10px] text-gray-400 mt-1">
-                {parsedText.length.toLocaleString()} characters extracted
-              </p>
+              {tutorials.map((t, i) => (
+                <div key={i} className="mb-2">
+                  <p className="text-xs font-medium text-gray-800">{t.name}</p>
+                  <div className="max-h-24 overflow-y-auto bg-gray-50 rounded-lg p-2 border border-gray-200 mt-1">
+                    <p className="text-xs text-gray-600 whitespace-pre-wrap">
+                      {t.content.substring(0, 300)}{t.content.length > 300 ? '...' : ''}
+                    </p>
+                  </div>
+                  <p className="text-[10px] text-gray-400 mt-0.5">
+                    {t.content.length.toLocaleString()} characters
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -247,12 +254,12 @@ export function ImportMaterialModal({ onClose, initialFolderId = null }: ImportM
           >
             Cancel
           </button>
-          {parsedText && (
+          {step === 'preview' && (
             <button
               onClick={handleImport}
               className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Import Material
+              Import {tutorials.length} Tutorial(s)
             </button>
           )}
         </div>
