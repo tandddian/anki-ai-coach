@@ -127,3 +127,36 @@ async function seed(): Promise<void> {
     - Establishment of Israel
     - Marshall Plan for European reconstruction`
   );
+
+  const physicsMaterial = createMaterial(
+    'Classical Mechanics',
+    '/sample/mechanics.pptx',
+    'pptx',
+    scienceFolder.id,
+    `Classical mechanics is a physical theory describing the motion of macroscopic objects.
+    It provides extremely accurate results when studying objects that are much larger than
+    atoms and moving much slower than the speed of light.
+
+    Newton's Three Laws of Motion:
+    1. First Law (Inertia): An object at rest stays at rest, and an object in motion stays
+       in motion with the same speed and direction, unless acted upon by an unbalanced force.
+    2. Second Law (F = ma): The acceleration of an object is directly proportional to the
+       net force acting on it and inversely proportional to its mass.
+    3. Third Law: For every action, there is an equal and opposite reaction.
+
+    Conservation Laws:
+    - Conservation of Energy: Energy cannot be created or destroyed
+    - Conservation of Momentum: m1v1 + m2v2 = constant (in closed system)
+    - Conservation of Angular Momentum: L = r × p = Iω
+
+    Kinematics Equations:
+    - v = v0 + at
+    - x = x0 + v0t + (1/2)at²
+    - v² = v0² + 2a(x - x0)
+
+    Connection to Calculus:
+    - Velocity is the derivative of position: v = dx/dt
+    - Acceleration is the derivative of velocity: a = dv/dt = d²x/dt²
+    - Work is the integral of force over distance: W = ∫F·dx
+    - Impulse is the integral of force over time: J = ∫F·dt`
+  );
