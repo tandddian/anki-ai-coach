@@ -4,6 +4,7 @@ import { useStore } from '../../store';
 import { Folder, FolderType } from '../../types';
 import { parseFile } from '../../utils/fileParser';
 import { createMaterial } from '../../database/queries';
+import { ImportMaterialModal } from '../Modals/ImportMaterialModal';
 
 interface TreeNode {
   id: string;
@@ -53,6 +54,7 @@ export function FolderTree({ folderType }: FolderTreeProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [treeHeight, setTreeHeight] = useState(0);
+  const [importModalFolderId, setImportModalFolderId] = useState<number | null>(null);
 
   const treeRef = useRef<TreeApi<TreeNode> | null>(null);
   const pendingOpenRef = useRef<Set<string>>(new Set());
@@ -186,10 +188,8 @@ export function FolderTree({ folderType }: FolderTreeProps) {
   );
 
   const handleImportClick = useCallback((folderId: number) => {
-    importingFolderRef.current = folderId;
+    setImportModalFolderId(folderId);
     setContextMenu(null);
-    setImportError(null);
-    fileInputRef.current?.click();
   }, []);
 
   const handleFileChange = useCallback(
@@ -509,6 +509,14 @@ export function FolderTree({ folderType }: FolderTreeProps) {
             Dismiss
           </button>
         </div>
+      )}
+
+      {/* Import Material Modal */}
+      {importModalFolderId !== null && (
+        <ImportMaterialModal
+          initialFolderId={importModalFolderId}
+          onClose={() => setImportModalFolderId(null)}
+        />
       )}
     </div>
   );
