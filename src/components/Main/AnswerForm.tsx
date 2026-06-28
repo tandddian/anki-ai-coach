@@ -18,8 +18,30 @@ export function AnswerForm({
   showResult = false,
   correctAnswer,
 }: AnswerFormProps) {
+  const questionType = question.questionType || 'multiple_choice';
+  const hasOptions = question.options && question.options.length > 0;
+
+  // Essay question: large textarea (no options)
+  if (questionType === 'essay' || (!hasOptions && questionType !== 'multiple_choice')) {
+    return (
+      <div>
+        <textarea
+          value={userAnswer}
+          onChange={(e) => onAnswerChange(e.target.value)}
+          disabled={disabled}
+          placeholder="Write your answer here... (minimum a few sentences)"
+          rows={6}
+          className="w-full px-3 py-2 text-sm border rounded-lg resize-none
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+            disabled:bg-gray-50 disabled:text-gray-500
+            border-gray-300"
+        />
+      </div>
+    );
+  }
+
   // Multiple choice
-  if (question.options && question.options.length > 0) {
+  if (hasOptions) {
     return (
       <div className="space-y-2">
         {question.options.map((option, idx) => {
