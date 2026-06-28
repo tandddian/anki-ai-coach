@@ -117,13 +117,25 @@ export function runSql(sql: string, params: SqlParams = []): { lastInsertRowid: 
 // Helper: run SELECT and return typed rows
 type SqlParams = (string | number | null)[];
 
+function toCamelCase(str: string): string {
+  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
+function mapRowKeys<T>(row: Record<string, unknown>): T {
+  const mapped: Record<string, unknown> = {};
+  for (const key of Object.keys(row)) {
+    mapped[toCamelCase(key)] = row[key];
+  }
+  return mapped as unknown as T;
+}
+
 export function queryAll<T = Record<string, unknown>>(sql: string, params: SqlParams = []): T[] {
   const database = getDb();
   const stmt = database.prepare(sql);
   stmt.bind(params);
   const rows: T[] = [];
   while (stmt.step()) {
-    rows.push(stmt.getAsObject() as unknown as T);
+    rows.push(mapRowKeys<T>(stmt.getAsObject() as Record<string, unknown>));
   }
   stmt.free();
   return rows;
