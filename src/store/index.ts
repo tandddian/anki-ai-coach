@@ -53,3 +53,45 @@ interface AppState {
   refreshMaterials: () => Promise<void>;
   clearTestResults: () => void;
 }
+
+export const useStore = create<AppState>((set, get) => ({
+  selectedDate: new Date(),
+  selectedTest: null,
+  isGenerating: false,
+  generationError: null,
+  testResults: null,
+  showTestResults: false,
+
+  materials: [],
+  folders: [],
+  tests: [],
+  currentQuestions: [],
+  currentMaterials: [],
+
+  isLoadingFolders: false,
+  isLoadingMaterials: false,
+  isLoadingTests: false,
+
+  setSelectedDate: (date: Date) => {
+    set({ selectedDate: date, selectedTest: null, testResults: null, showTestResults: false });
+    get().loadTests(date);
+    get().loadDueMaterials(date);
+  },
+
+  selectTest: (test: AITest | null) => {
+    set({ selectedTest: test, testResults: null, showTestResults: false });
+    if (test) {
+      try {
+        const questions = getQuestionsByTestId(test.id);
+        const testMaterials = getTestMaterialsByTestId(test.id);
+        const materialIds = testMaterials.map(tm => tm.materialId);
+        const materials = getMaterialsByIds(materialIds);
+        set({ currentQuestions: questions, currentMaterials: materials });
+      } catch (error) {
+        console.error('Error loading test details:', error);
+        set({ currentQuestions: [], currentMaterials: [] });
+      }
+    } else {
+      set({ currentQuestions: [], currentMaterials: [] });
+    }
+  },
