@@ -198,3 +198,13 @@ async function seed(): Promise<void> {
     - Collections module: defaultdict, Counter, deque, namedtuple
     - Time/space complexity analysis (Big O notation)`
   );
+
+  updateMaterialSM2(calculusMaterial.id, 6, 2.5, 2, getDateOffset(0));
+  updateMaterialSM2(linearAlgebraMaterial.id, 1, 2.3, 1, getDateOffset(0));
+  updateMaterialSM2(wwiiMaterial.id, 0, 2.5, 0, getDateOffset(0));
+  updateMaterialSM2(physicsMaterial.id, 4, 2.6, 3, getDateOffset(1));
+
+  console.log('Creating correlations...');
+
+  createCorrelation(calculusMaterial.id, linearAlgebraMaterial.id, 8);
+  createCorrelation(calculusMaterial.id, physicsMaterial.id, 7);
