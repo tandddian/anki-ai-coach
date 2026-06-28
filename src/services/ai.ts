@@ -211,27 +211,41 @@ function generateTestRuleBased(
   }
   const termsList = Array.from(keyTerms).slice(0, 50);
 
-  // Easy questions (fill-in-blank from materials)
+  // Easy questions: fill_in_blank from materials
   for (let i = 0; i < Math.min(2, materials.length); i++) {
     const material = materials[i];
     const sentences = allSentences.filter(s => s.materialId === material.id);
     if (sentences.length > 0) {
       const targetSentence = sentences[Math.floor(Math.random() * sentences.length)];
       const words = targetSentence.text.split(/\s+/);
-      const blankWord = words[Math.floor(words.length / 2)];
+      if (words.length < 4) continue;
+      const blankIndex = Math.floor(words.length / 2);
+      const blankWord = words[blankIndex];
 
       const options = [blankWord];
       const shuffled = termsList.sort(() => Math.random() - 0.5);
       for (const term of shuffled) {
         if (options.length >= 4) break;
-        if (term !== blankWord) options.push(term);
+        if (term.toLowerCase() !== blankWord.toLowerCase()) options.push(term);
       }
+      // Pad if needed
+      while (options.length < 4) {
+        options.push(`distractor_${options.length}`);
+      }
+
+      // Randomize which option is correct (not always A)
+      const shuffledOptions = [...options].sort(() => Math.random() - 0.5);
+      const correctIndex = shuffledOptions.indexOf(blankWord);
+      const correctLetter = String.fromCharCode(65 + correctIndex);
+
+      const blankSentence = targetSentence.text.replace(blankWord, '___');
 
       questions.push({
         difficulty: 'easy',
-        questionText: `Fill in the blank from "${material.name}":\n${targetSentence.text.replace(blankWord, '___')}`,
-        options: options.map((opt, idx) => `${String.fromCharCode(65 + idx)}. ${opt}`),
-        correctAnswer: 'A',
+        questionType: 'fill_in_blank',
+        questionText: `Fill in the blank from "${material.name}":\n${blankSentence}`,
+        options: shuffledOptions.map((opt, idx) => `${String.fromCharCode(65 + idx)}. ${opt}`),
+        correctAnswer: correctLetter,
         explanation: `The correct term is "${blankWord}" as stated in "${material.name}".`,
         sourceMaterialIds: [material.id],
       });
