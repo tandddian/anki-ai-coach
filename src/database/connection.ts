@@ -50,3 +50,33 @@ export async function initDatabase(filePath?: string): Promise<void> {
       });
     }
   }
+
+  // Try to load existing database
+  let loaded = false;
+
+  if (isNode) {
+    const fs = await import('fs');
+    const finalPath = filePath || getDbPath();
+    if (fs.existsSync(finalPath)) {
+      const buffer = fs.readFileSync(finalPath);
+      db = new SQL.Database(buffer);
+      loaded = true;
+    }
+  } else if (typeof window !== 'undefined' && window.electronAPI) {
+    try {
+      const data = await window.electronAPI.readDbFile();
+      if (data) {
+        db = new SQL.Database(new Uint8Array(data));
+        loaded = true;
+      }
+    } catch {
+      // File doesn't exist yet
+    }
+  }
+
+  if (!loaded) {
+    db = new SQL.Database();
+  }
+
+  db.run('PRAGMA foreign_keys = ON');
+}
