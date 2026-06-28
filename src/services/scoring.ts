@@ -85,6 +85,7 @@ function checkAnswer(userAnswer: string, correctAnswer: string, options: string[
   const normalizedUser = userAnswer.toUpperCase().trim();
   const normalizedCorrect = correctAnswer.toUpperCase().trim();
 
+  // Direct letter match (e.g., both user and correct are "A")
   if (normalizedUser === normalizedCorrect) return true;
 
   // Check if user answered with the full option text
@@ -93,16 +94,43 @@ function checkAnswer(userAnswer: string, correctAnswer: string, options: string[
     if (match) {
       const letter = match[1].toUpperCase();
       const text = match[2].trim();
+      // User typed full text matching correct answer text
       if (letter === normalizedCorrect && normalizedUser === text.toUpperCase()) {
         return true;
       }
+      // User typed letter, and the option text matches the correct answer word/phrase
       if (letter === normalizedUser && text.toUpperCase() === normalizedCorrect.toUpperCase()) {
         return true;
       }
     }
   }
 
-  // Open-ended question matching
+  // Fill-in-blank / word-level matching (case-insensitive, trimmed)
+  // This handles cases where the correctAnswer is a word/phrase (not a letter)
+  // and the user typed the word directly, or selected a letter whose option text contains the word
+  if (options.length > 0) {
+    const cleanUser = userAnswer.trim();
+    const cleanCorrect = correctAnswer.trim();
+    if (cleanUser.toLowerCase() === cleanCorrect.toLowerCase()) {
+      return true;
+    }
+    // Also check if user selected a letter that corresponds to the correct word
+    const userLetter = cleanUser.toUpperCase();
+    if (/^[A-D]$/.test(userLetter)) {
+      const idx = userLetter.charCodeAt(0) - 65;
+      if (idx < options.length) {
+        const optMatch = options[idx].match(/^[A-D][.)]?\s*(.+)$/i);
+        if (optMatch) {
+          const optText = optMatch[1].trim();
+          if (optText.toLowerCase() === cleanCorrect.toLowerCase()) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+
+  // Open-ended / essay question matching (no options)
   if (options.length === 0) {
     return normalizedUser.includes(normalizedCorrect) ||
            normalizedCorrect.includes(normalizedUser);
