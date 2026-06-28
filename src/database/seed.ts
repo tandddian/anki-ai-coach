@@ -160,3 +160,41 @@ async function seed(): Promise<void> {
     - Work is the integral of force over distance: W = ∫F·dx
     - Impulse is the integral of force over time: J = ∫F·dt`
   );
+
+  createMaterial(
+    'Python Data Structures',
+    '/sample/python_data.md',
+    'md',
+    programmingFolder.id,
+    `Python provides several built-in data structures that make it easy to organize and
+    manipulate data efficiently.
+
+    Lists:
+    - Ordered, mutable collections: fruits = ['apple', 'banana', 'cherry']
+    - Support indexing, slicing, and methods like append(), extend(), pop()
+    - List comprehensions: [x**2 for x in range(10)]
+    - Time complexity: O(1) for indexing, O(n) for searching
+
+    Tuples:
+    - Ordered, immutable collections: point = (3, 4)
+    - Useful for returning multiple values from functions
+    - More memory efficient than lists
+    - Can be used as dictionary keys (unlike lists)
+
+    Dictionaries:
+    - Key-value pairs: student = {'name': 'Alice', 'age': 20}
+    - O(1) average time for lookup, insertion, deletion
+    - Keys must be hashable (immutable types)
+    - dict.get(key, default) for safe access
+
+    Sets:
+    - Unordered collections of unique elements
+    - Set operations: union, intersection, difference
+    - Useful for removing duplicates from lists
+    - Fast membership testing: O(1) average
+
+    Advanced Concepts:
+    - Generators for memory-efficient iteration
+    - Collections module: defaultdict, Counter, deque, namedtuple
+    - Time/space complexity analysis (Big O notation)`
+  );
