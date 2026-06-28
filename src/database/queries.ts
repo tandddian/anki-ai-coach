@@ -53,3 +53,20 @@ export function createMaterial(
   );
   return getMaterialById(result.lastInsertRowid)!;
 }
+
+export function getAllMaterials(): Material[] {
+  return queryAll<Material>('SELECT * FROM materials ORDER BY created_at DESC');
+}
+
+export function getMaterialById(id: number): Material | undefined {
+  return queryOne<Material>('SELECT * FROM materials WHERE id = ?', [id]);
+}
+
+export function getMaterialsByFolderId(folderId: number): Material[] {
+  return queryAll<Material>('SELECT * FROM materials WHERE folder_id = ? ORDER BY name', [folderId]);
+}
+
+export function getDueMaterials(date?: string): Material[] {
+  const today = date || getDateString(new Date());
+  return queryAll<Material>('SELECT * FROM materials WHERE next_review <= ? ORDER BY next_review', [today]);
+}
