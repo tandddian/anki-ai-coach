@@ -27,3 +27,17 @@ export function scoreTest(
 
   return attempt;
 }
+
+function updateMaterialSchedules(
+  testId: number,
+  questions: TestQuestion[],
+  questionResults: Map<number, boolean>
+): void {
+  const testMaterials = getTestMaterialsByTestId(testId);
+  const materialIds = testMaterials.map(tm => tm.materialId);
+  const materials = getMaterialsByIds(materialIds);
+
+  const materialPerformance: Map<number, { correct: number; total: number }> = new Map();
+  for (const materialId of materialIds) {
+    materialPerformance.set(materialId, { correct: 0, total: questions.length });
+  }
