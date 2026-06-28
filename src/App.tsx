@@ -14,7 +14,7 @@ export default function App() {
       loadFolders();
       loadTests(selectedDate);
     }
-  }, [initComplete, loadFolders, loadTests, selectedDate]);
+  }, [initComplete, loadFolders, loadTests]);
 
   if (error) {
     return (
