@@ -327,6 +327,25 @@ function generateTestRuleBased(
     }
   }
 
+  // Add 1 essay question about a key topic
+  const essayMaterial = materials[0];
+  if (essayMaterial) {
+    const topicSentences = allSentences.filter(s => s.materialId === essayMaterial.id);
+    const topic = topicSentences.length > 0
+      ? topicSentences.slice(0, 2).map(s => s.text.substring(0, 100)).join(' ')
+      : essayMaterial.name;
+
+    questions.push({
+      difficulty: 'medium',
+      questionType: 'essay',
+      questionText: `Based on the material "${essayMaterial.name}", explain the key concepts and their significance. Provide specific examples from the source material to support your analysis.`,
+      options: [],
+      correctAnswer: `Model answer: The material "${essayMaterial.name}" covers important concepts including: ${topic}... These concepts are significant because they form the foundation for understanding the broader subject matter.`,
+      explanation: `Essay questions encourage deeper understanding and synthesis of the material.`,
+      sourceMaterialIds: [essayMaterial.id],
+    });
+  }
+
   const topics = materials.map(m => m.name).join(' & ');
   const name = `${getDateString(new Date())} - Study: ${topics.substring(0, 50)}`;
 
