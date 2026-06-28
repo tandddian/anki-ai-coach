@@ -1,4 +1,22 @@
-import { execSql } from './connection';
+import { execSql, queryAll } from './connection';
+
+function migrateAddQuestionType(): void {
+  // Check if question_type column already exists
+  const columns = queryAll<{ name: string }>(
+    "PRAGMA table_info('test_questions')"
+  );
+  const hasColumn = columns.some((col) => col.name === 'question_type');
+  if (!hasColumn) {
+    try {
+      execSql(
+        "ALTER TABLE test_questions ADD COLUMN question_type TEXT NOT NULL DEFAULT 'multiple_choice' CHECK(question_type IN ('multiple_choice', 'fill_in_blank', 'essay'))"
+      );
+    } catch (err) {
+      // Column might have been added by a concurrent process; ignore
+      console.warn('Migration addQuestionType failed (may already exist):', err);
+    }
+  }
+}
 
 export function createTables(): void {
   execSql(`
@@ -38,6 +56,7 @@ export function createTables(): void {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       test_id INTEGER NOT NULL,
       difficulty TEXT NOT NULL CHECK(difficulty IN ('easy', 'medium', 'hard')),
+      question_type TEXT NOT NULL DEFAULT 'multiple_choice' CHECK(question_type IN ('multiple_choice', 'fill_in_blank', 'essay')),
       question_text TEXT NOT NULL,
       options TEXT NOT NULL DEFAULT '[]',
       correct_answer TEXT NOT NULL,
@@ -89,4 +108,7 @@ export function createTables(): void {
     CREATE INDEX IF NOT EXISTS idx_folders_parent ON folders(parent_id);
     CREATE INDEX IF NOT EXISTS idx_folders_type ON folders(type);
   `);
+
+  // Migration: add question_type column if it doesn't exist (for existing databases)
+  migrateAddQuestionType();
 }
