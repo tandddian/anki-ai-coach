@@ -6,11 +6,12 @@ import { parseFile } from '../../utils/fileParser';
 
 interface ImportMaterialModalProps {
   onClose: () => void;
+  initialFolderId?: number | null;
 }
 
-export function ImportMaterialModal({ onClose }: ImportMaterialModalProps) {
+export function ImportMaterialModal({ onClose, initialFolderId = null }: ImportMaterialModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
+  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(initialFolderId);
   const [isParsing, setIsParsing] = useState(false);
   const [parseProgress, setParseProgress] = useState('');
   const [error, setError] = useState<string | null>(null);
