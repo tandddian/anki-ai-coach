@@ -41,3 +41,42 @@ function updateMaterialSchedules(
   for (const materialId of materialIds) {
     materialPerformance.set(materialId, { correct: 0, total: questions.length });
   }
+
+  for (const question of questions) {
+    const isCorrect = questionResults.get(question.id) || false;
+    const increment = 1 / materialIds.length;
+    for (const materialId of materialIds) {
+      const current = materialPerformance.get(materialId)!;
+      if (isCorrect) {
+        current.correct += increment;
+      }
+    }
+  }
+
+  for (const material of materials) {
+    const perf = materialPerformance.get(material.id);
+    if (!perf) continue;
+
+    const quality = materialPerformanceToQuality(
+      Math.round(perf.correct),
+      Math.round(perf.total)
+    );
+
+    const sm2Input = {
+      quality,
+      repetitions: material.repetitions,
+      easeFactor: material.easeFactor,
+      interval: material.interval,
+    };
+
+    const sm2Output = calculateSM2(sm2Input);
+
+    updateMaterialSM2(
+      material.id,
+      sm2Output.interval,
+      sm2Output.easeFactor,
+      sm2Output.repetitions,
+      sm2Output.nextReview.toISOString().split('T')[0]
+    );
+  }
+}
