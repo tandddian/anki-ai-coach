@@ -187,3 +187,42 @@ export const useStore = create<AppState>((set, get) => ({
       return null;
     }
   },
+
+  addFolder: async (name: string, type: FolderType, parentId: number | null = null) => {
+    try {
+      const folder = createFolder(name, type, parentId);
+      await get().loadFolders();
+      return folder;
+    } catch (error) {
+      console.error('Error adding folder:', error);
+      return null;
+    }
+  },
+
+  removeFolder: async (id: number) => {
+    try {
+      deleteFolder(id);
+      await get().loadFolders();
+    } catch (error) {
+      console.error('Error removing folder:', error);
+    }
+  },
+
+  loadMaterialById: async (id: number) => {
+    try {
+      return getMaterialById(id);
+    } catch (error) {
+      console.error('Error loading material:', error);
+      return undefined;
+    }
+  },
+
+  refreshMaterials: async () => {
+    await get().loadMaterials();
+    await get().loadFolders();
+  },
+
+  clearTestResults: () => {
+    set({ testResults: null, showTestResults: false });
+  },
+}));
