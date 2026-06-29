@@ -18,6 +18,22 @@ function migrateAddQuestionType(): void {
   }
 }
 
+function migrateAddSource(): void {
+  const columns = queryAll<{ name: string }>(
+    "PRAGMA table_info('ai_tests')"
+  );
+  const hasColumn = columns.some((col) => col.name === 'source');
+  if (!hasColumn) {
+    try {
+      execSql(
+        "ALTER TABLE ai_tests ADD COLUMN source TEXT NOT NULL DEFAULT 'generated' CHECK(source IN ('generated', 'imported'))"
+      );
+    } catch (err) {
+      console.warn('Migration addSource failed (may already exist):', err);
+    }
+  }
+}
+
 export function createTables(): void {
   execSql(`
     CREATE TABLE IF NOT EXISTS folders (
@@ -111,4 +127,6 @@ export function createTables(): void {
 
   // Migration: add question_type column if it doesn't exist (for existing databases)
   migrateAddQuestionType();
+  // Migration: add source column to ai_tests
+  migrateAddSource();
 }

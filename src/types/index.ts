@@ -26,6 +26,7 @@ export interface AITest {
   name: string;
   testDate: string;
   createdAt: string;
+  source: 'generated' | 'imported';
 }
 
 export interface TestQuestion {
