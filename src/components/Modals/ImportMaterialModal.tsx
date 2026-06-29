@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../../store';
-import { createMaterial } from '../../database/queries';
+import { createMaterial, createTest } from '../../database/queries';
 import { Folder } from '../../types';
 import { parseFile } from '../../utils/fileParser';
 import { summarizeToTutorial, FileContent, TutorialResult } from '../../services/ai';
@@ -84,11 +84,14 @@ export function ImportMaterialModal({ onClose, initialFolderId = null }: ImportM
 
   const handleImport = async () => {
     try {
+      const today = new Date().toISOString().split('T')[0];
       for (const tutorial of tutorials) {
         createMaterial(tutorial.name, tutorial.name, 'md', selectedFolderId, tutorial.content);
+        createTest(tutorial.name, today, 'imported');
       }
       setImportComplete(true);
       await refreshMaterials();
+      useStore.setState(s => ({ testListRefreshKey: s.testListRefreshKey + 1 }));
       setTimeout(() => onClose(), 1500);
     } catch (err: any) {
       setError(`Failed to import: ${err.message}`);
