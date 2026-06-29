@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getAllTests } from '../../database/queries';
+import { getTestsBySource } from '../../database/queries';
 import { useStore } from '../../store';
 import { AITest } from '../../types';
 
-export function TestList() {
+export function TestList({ source }: { source: 'generated' | 'imported' }) {
   const selectedTest = useStore(state => state.selectedTest);
   const selectTestFromList = useStore(state => state.selectTestFromList);
   const testListRefreshKey = useStore(state => state.testListRefreshKey);
@@ -11,7 +11,7 @@ export function TestList() {
   const [tests, setTests] = useState<AITest[]>([]);
 
   useEffect(() => {
-    setTests(getAllTests());
+    setTests(getTestsBySource(source));
   }, [testListRefreshKey]);
 
   if (tests.length === 0) {
