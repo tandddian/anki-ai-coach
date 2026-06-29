@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../../store';
 import { SourceMaterialList } from './SourceMaterialList';
-import { AddFolderModal } from '../Modals/AddFolderModal';
-import { ImportMaterialModal } from '../Modals/ImportMaterialModal';
+import { ImportButton } from '../Main/ImportButton';
 import { setAIKey, getAIKey } from '../../services/ai';
 
 export function RightSidebar() {
@@ -12,8 +11,6 @@ export function RightSidebar() {
   const currentQuestions = useStore(state => state.currentQuestions);
   const materials = useStore(state => state.materials);
 
-  const [showAddFolderModal, setShowAddFolderModal] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'materials' | 'info'>('materials');
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
   const [apiKeyValue, setApiKeyValue] = useState(getAIKey() || '');
@@ -27,24 +24,7 @@ export function RightSidebar() {
 
       {/* Action buttons */}
       <div className="p-2 border-b border-gray-200 flex gap-1">
-        <button
-          onClick={() => setShowImportModal(true)}
-          className="flex-1 px-2 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-1"
-        >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Import
-        </button>
-        <button
-          onClick={() => setShowAddFolderModal(true)}
-          className="flex-1 px-2 py-1.5 text-xs bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center gap-1"
-        >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-          </svg>
-          Folder
-        </button>
+        <ImportButton />
       </div>
 
       {/* Tabs */}
@@ -194,13 +174,6 @@ export function RightSidebar() {
         )}
       </div>
 
-      {/* Modals */}
-      {showAddFolderModal && (
-        <AddFolderModal onClose={() => setShowAddFolderModal(false)} />
-      )}
-      {showImportModal && (
-        <ImportMaterialModal onClose={() => setShowImportModal(false)} />
-      )}
     </div>
   );
 }
