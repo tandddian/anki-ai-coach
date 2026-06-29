@@ -19,7 +19,7 @@ export async function generateTestForDate(date: string): Promise<AITest | null> 
     score: c.correlationScore,
   })));
 
-  const test = createTest(generatedTest.name, date);
+  const test = createTest(generatedTest.name, date, 'generated');
 
   generatedTest.questions.map(q =>
     createQuestion(test.id, q.difficulty, q.questionType, q.questionText, q.options, q.correctAnswer, q.explanation)
