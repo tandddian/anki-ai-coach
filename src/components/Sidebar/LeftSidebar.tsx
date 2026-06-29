@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
 import { Calendar } from './Calendar';
-import { FolderTree } from './FolderTree';
 import { TestList } from './TestList';
-import { useStore } from '../../store';
-
 export function LeftSidebar() {
   const [calendarOpen, setCalendarOpen] = useState(true);
   const [materialTreeOpen, setMaterialTreeOpen] = useState(true);
   const [questionTreeOpen, setQuestionTreeOpen] = useState(true);
-
-  const addFolder = useStore(state => state.addFolder);
 
   return (
     <div className="h-full flex flex-col">
@@ -67,13 +62,7 @@ export function LeftSidebar() {
         </button>
         {materialTreeOpen && (
           <div className="px-2 pb-2">
-            <button
-              onClick={() => addFolder('New Folder', 'material')}
-              className="w-full text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded px-2 py-1 text-left transition-colors mb-1"
-            >
-              + Add Material Folder
-            </button>
-            <FolderTree folderType="material" />
+            <TestList source="imported" />
           </div>
         )}
       </div>
@@ -100,7 +89,7 @@ export function LeftSidebar() {
         </button>
         {questionTreeOpen && (
           <div className="pb-2">
-            <TestList />
+            <TestList source="generated" />
           </div>
         )}
       </div>
