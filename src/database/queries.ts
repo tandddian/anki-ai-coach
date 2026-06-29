@@ -116,13 +116,17 @@ export function getMaterialsByIds(ids: number[]): Material[] {
 
 // ============ TEST QUERIES ============
 
-export function createTest(name: string, testDate: string): AITest {
-  const result = runSql('INSERT INTO ai_tests (name, test_date) VALUES (?, ?)', [name, testDate]);
+export function createTest(name: string, testDate: string, source: 'generated' | 'imported' = 'generated'): AITest {
+  const result = runSql('INSERT INTO ai_tests (name, test_date, source) VALUES (?, ?, ?)', [name, testDate, source]);
   return getTestById(result.lastInsertRowid)!;
 }
 
 export function getAllTests(): AITest[] {
   return queryAll<AITest>('SELECT * FROM ai_tests ORDER BY created_at DESC');
+}
+
+export function getTestsBySource(source: 'generated' | 'imported'): AITest[] {
+  return queryAll<AITest>('SELECT * FROM ai_tests WHERE source = ? ORDER BY created_at DESC', [source]);
 }
 
 export function getTestById(id: number): AITest | undefined {
